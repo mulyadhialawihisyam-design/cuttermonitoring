@@ -27,9 +27,10 @@
             background-color: #000;
             border: 3px solid #ebf1f9;
         }
-        /* Sembunyikan elemen internal library scanner yang tidak perlu */
+        /* Menyembunyikan kontrol bawaan library yang mengganggu */
         #reader__dashboard_section_csr button { display: none !important; }
         #reader__status_span { display: none !important; }
+        #reader video { object-fit: cover !important; }
         
         .tab-active {
             background-color: #2563eb;
@@ -63,12 +64,15 @@
             </div>
         </header>
 
-        <div id="cameraContainer" class="hidden animate-in fade-in zoom-in duration-300">
-            <div class="app-card p-3 border-2 border-blue-500">
+        <div id="cameraContainer" class="hidden transition-all duration-300">
+            <div class="app-card p-3 border-2 border-blue-500 shadow-2xl">
                 <div id="reader"></div>
-                <button onclick="stopCamera()" class="w-full mt-3 py-3 bg-red-50 text-red-600 font-bold text-xs rounded-xl hover:bg-red-100 transition">
-                    BATALKAN PEMINDAIAN
-                </button>
+                <div class="flex flex-col gap-2 mt-3">
+                    <p class="text-[9px] text-center text-gray-400 font-bold uppercase">Mencoba Mengunci Fokus Otomatis...</p>
+                    <button onclick="stopCamera()" class="w-full py-3 bg-red-50 text-red-600 font-bold text-xs rounded-xl hover:bg-red-100 transition">
+                        BATALKAN PEMINDAIAN
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -89,10 +93,10 @@
                     <div class="relative flex items-center">
                         <input type="text" id="assetIdInput" readonly 
                                class="w-full bg-gray-50 border border-gray-100 p-4 pr-16 rounded-2xl font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm" 
-                               placeholder="Klik ikon untuk scan...">
+                               placeholder="Scan QR Unit...">
                         <button onclick="startCamera()" class="absolute right-2 p-2.5 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-200 active:scale-90 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z" />
                             </svg>
                         </button>
                     </div>
@@ -109,7 +113,7 @@
             <div class="px-6 py-5 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
                 <div>
                     <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Daftar Pinjaman</h3>
-                    <p class="text-[9px] text-gray-400 font-medium">Data diperbarui otomatis</p>
+                    <p class="text-[9px] text-gray-400 font-medium">Auto-sync aktif</p>
                 </div>
                 <div class="flex items-center space-x-2">
                     <span id="outBadge" class="bg-blue-50 text-blue-600 text-[10px] font-black px-3 py-1 rounded-full border border-blue-100">0 UNIT OUT</span>
@@ -127,7 +131,7 @@
                     <tbody id="dataTableBody" class="divide-y divide-gray-50">
                         <tr>
                             <td colspan="2" class="px-6 py-10 text-center text-gray-400 text-xs font-medium italic">
-                                Mengambil data dari server...
+                                Menghubungkan ke Sheets...
                             </td>
                         </tr>
                     </tbody>
@@ -139,8 +143,7 @@
 
     <script>
         /**
-         * PENTING: Ganti URL di bawah ini dengan URL Web App (Deployment) 
-         * yang kamu dapatkan dari Google Apps Script setelah deploy ulang.
+         * PENTING: Ganti URL ini dengan URL Web App Deployment terbaru Anda
          */
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxERurz5XLHHI630eGb7ixMkulJ3lFMk0kOxRNlBTJu2FHBmGqmFMlljmo-0scqq88B/exec";
         
@@ -148,24 +151,35 @@
         let html5QrCode = null;
 
         /**
-         * 📷 FUNGSI KAMERA
+         * 📷 LOGIKA KAMERA DENGAN AUTO FOCUS OPTIMIZATION
          */
         async function startCamera() {
             const container = document.getElementById('cameraContainer');
             const form = document.getElementById('formSection');
             
             container.classList.remove('hidden');
-            form.classList.add('opacity-30', 'pointer-events-none');
+            form.classList.add('opacity-20', 'pointer-events-none');
             
             if (html5QrCode) {
                 try { await html5QrCode.clear(); } catch(e) {}
             }
 
             html5QrCode = new Html5Qrcode("reader");
+            
+            // Konfigurasi Constraints Tingkat Lanjut untuk Fokus & Ketajaman
             const config = { 
-                fps: 20, 
+                fps: 25, 
                 qrbox: { width: 250, height: 250 },
-                aspectRatio: 1.0 
+                aspectRatio: 1.0,
+                videoConstraints: {
+                    facingMode: "environment",
+                    // Meminta resolusi tinggi agar sensor fokus bekerja lebih baik
+                    width: { min: 640, ideal: 1280, max: 1920 },
+                    height: { min: 640, ideal: 720, max: 1080 },
+                    // Mencoba memaksa mode fokus berkelanjutan
+                    focusMode: "continuous",
+                    whiteBalance: "continuous"
+                }
             };
 
             try {
@@ -174,13 +188,35 @@
                     config, 
                     (decodedText) => {
                         document.getElementById('assetIdInput').value = decodedText.toUpperCase().trim();
-                        vibratePhone(70);
+                        if (navigator.vibrate) navigator.vibrate(70);
                         stopCamera();
                     }
-                );
+                ).then(() => {
+                    // SETELAH KAMERA AKTIF: Paksa Hardware untuk Fokus (Jika didukung browser)
+                    applyAutoFocus();
+                });
             } catch (err) {
-                alert("Kamera tidak bisa diakses. Pastikan izin diberikan.");
+                console.error(err);
+                alert("Gagal akses kamera. Pastikan menggunakan HTTPS dan memberi izin kamera.");
                 stopCamera();
+            }
+        }
+
+        /**
+         * 🛠️ Fungsi Tambahan untuk Memaksa Fokus ke Hardware
+         */
+        function applyAutoFocus() {
+            const videoTrack = document.querySelector("#reader video");
+            if (videoTrack && videoTrack.srcObject) {
+                const track = videoTrack.srcObject.getVideoTracks()[0];
+                const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+                
+                // Jika hardware mendukung perintah fokus via JS
+                if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+                    track.applyConstraints({
+                        advanced: [{ focusMode: 'continuous' }]
+                    }).catch(e => console.log("Focus constraint failed", e));
+                }
             }
         }
 
@@ -188,36 +224,30 @@
             if (html5QrCode) {
                 html5QrCode.stop().then(() => {
                     document.getElementById('cameraContainer').classList.add('hidden');
-                    document.getElementById('formSection').classList.remove('opacity-30', 'pointer-events-none');
-                }).catch(err => {
+                    document.getElementById('formSection').classList.remove('opacity-20', 'pointer-events-none');
+                }).catch(() => {
                     document.getElementById('cameraContainer').classList.add('hidden');
-                    document.getElementById('formSection').classList.remove('opacity-30', 'pointer-events-none');
+                    document.getElementById('formSection').classList.remove('opacity-20', 'pointer-events-none');
                 });
             }
         }
 
         /**
-         * 💾 FUNGSI KIRIM DATA (POST)
+         * 💾 KIRIM DATA
          */
         async function submitData() {
             const assetId = document.getElementById('assetIdInput').value;
             const btn = document.getElementById('submitBtn');
 
             if (!assetId) {
-                alert("Silakan scan QR Code Unit terlebih dahulu.");
+                alert("Scan unit dulu!");
                 return;
             }
 
             btn.disabled = true;
-            btn.innerHTML = `
-                <div class="flex items-center justify-center space-x-2">
-                    <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    <span>SINKRONISASI DATA...</span>
-                </div>
-            `;
+            btn.innerHTML = `<span>MENYIMPAN...</span>`;
 
             try {
-                // Mengirim data ke doPost di Apps Script
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -228,15 +258,14 @@
                     })
                 });
 
-                // Reset form & Berikan Feedback
                 document.getElementById('assetIdInput').value = "";
-                vibratePhone([50, 100, 50]);
+                if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
                 
-                // Segera refresh tabel setelah jeda singkat (agar server selesai menulis)
-                setTimeout(syncData, 1500);
+                // Jeda 2 detik agar Sheets selesai memproses sebelum tabel ditarik
+                setTimeout(syncData, 2000);
 
             } catch (err) {
-                alert("Koneksi gagal. Pastikan URL Script benar.");
+                alert("Koneksi gagal.");
             } finally {
                 btn.disabled = false;
                 btn.innerText = "SIMPAN DATA KE DRIVE";
@@ -244,39 +273,35 @@
         }
 
         /**
-         * 📊 FUNGSI AMBIL DATA TABEL (GET)
+         * 📊 UPDATE TABEL
          */
         async function syncData() {
             const tbody = document.getElementById('dataTableBody');
             const badge = document.getElementById('outBadge');
             
             try {
-                // Memanggil doGet dengan parameter action=getdata
                 const response = await fetch(SCRIPT_URL + "?action=getdata");
                 const res = await response.json();
                 
-                // Update statistik angka
                 badge.innerText = `${res.stats.out} UNIT OUT`;
 
-                // Cek jika data kosong
                 if (!res.listDipinjam || res.listDipinjam.length === 0) {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="2" class="px-6 py-12 text-center text-gray-400 text-[10px] font-bold uppercase tracking-widest italic">
-                                Semua cutter tersedia di rak
+                            <td colspan="2" class="px-6 py-12 text-center text-gray-400 text-[10px] font-bold uppercase italic">
+                                Semua cutter berada di rak
                             </td>
                         </tr>
                     `;
                     return;
                 }
 
-                // Render baris tabel
                 tbody.innerHTML = res.listDipinjam.map(item => `
                     <tr class="hover:bg-blue-50 transition duration-150">
                         <td class="px-6 py-4">
                             <div class="flex flex-col">
                                 <span class="text-sm font-black text-gray-900 tracking-tight">${item.id}</span>
-                                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">PIC: ${item.user || 'SYSTEM'}</span>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase">PIC: ${item.user || 'SYSTEM'}</span>
                             </div>
                         </td>
                         <td class="px-6 py-4 text-right">
@@ -287,16 +312,11 @@
                         </td>
                     </tr>
                 `).join('');
-
-                console.log("Database Synced Successfully.");
             } catch (err) {
-                console.warn("Syncing database failed. Retrying...");
+                console.log("Sync error");
             }
         }
 
-        /**
-         * 🛠️ UTILITIES UI
-         */
         function setMode(mode) {
             currentMode = mode;
             const btnP = document.getElementById('modePinjam');
@@ -306,19 +326,12 @@
                 btnP.className = "flex-1 py-3 text-xs font-black rounded-xl transition-all tab-active uppercase";
                 btnK.className = "flex-1 py-3 text-xs font-black rounded-xl transition-all tab-inactive uppercase";
             } else {
-                btnK.className = "flex-1 py-3 text-xs font-black rounded-xl transition-all bg-green-600 text-white shadow-lg shadow-green-100 uppercase";
+                btnK.className = "flex-1 py-3 text-xs font-black rounded-xl transition-all bg-green-600 text-white shadow-lg uppercase";
                 btnP.className = "flex-1 py-3 text-xs font-black rounded-xl transition-all tab-inactive uppercase";
             }
         }
 
-        function vibratePhone(pattern) {
-            if (navigator.vibrate) navigator.vibrate(pattern);
-        }
-
-        // Jalankan sinkronisasi pertama kali
         window.onload = syncData;
-
-        // Auto Refresh tabel setiap 15 detik
         setInterval(syncData, 15000);
     </script>
 </body>
