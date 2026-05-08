@@ -27,7 +27,7 @@
             border: 2px solid #e5e7eb;
             background-color: #000;
         }
-        /* Memperbaiki tampilan tombol internal scanner agar tidak mengganggu */
+        /* Menghilangkan tombol internal library */
         #reader__dashboard_section_csr button {
             display: none !important;
         }
@@ -50,6 +50,17 @@
             0% { box-shadow: 0 0 0 0px rgba(16, 185, 129, 0.4); }
             100% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
         }
+        /* Style scrollbar agar lebih cantik */
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -58,8 +69,8 @@
         
         <header class="flex justify-between items-center mb-6 py-2">
             <div>
-                <h1 class="text-xl font-bold text-gray-900 text-blue-600">Cutter Tracker</h1>
-                <p class="text-xs text-gray-500 font-medium tracking-wide">LOGISTICS OPS MONITORING</p>
+                <h1 class="text-xl font-bold text-blue-600 tracking-tight">Cutter Tracker</h1>
+                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Muly@.ID Monitoring</p>
             </div>
             <div class="flex items-center bg-white px-3 py-1 rounded-full shadow-sm border border-gray-100">
                 <span class="status-dot pulse"></span>
@@ -68,11 +79,11 @@
         </header>
 
         <div id="cameraArea" class="hidden mb-6 transition-all duration-300">
-            <div class="app-card p-3 border-2 border-blue-500">
+            <div class="app-card p-3 border-2 border-blue-500 shadow-2xl">
                 <div id="reader"></div>
-                <div class="mt-3 flex gap-2">
-                    <button onclick="stopCamera()" class="flex-1 py-3 bg-red-100 text-red-600 font-bold text-sm rounded-xl">
-                        BATALKAN
+                <div class="mt-3">
+                    <button onclick="stopCamera()" class="w-full py-3 bg-red-50 text-red-600 font-bold text-sm rounded-xl hover:bg-red-100 transition">
+                        BATALKAN SCAN
                     </button>
                 </div>
             </div>
@@ -91,11 +102,14 @@
 
             <div class="app-card p-6 space-y-6">
                 <div class="space-y-2">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">LOKASI / ZONA</label>
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest flex justify-between">
+                        <span>LOKASI / ZONA</span>
+                        <span id="zonaStatus" class="text-blue-500 hidden font-bold italic">Terkunci</span>
+                    </label>
                     <div class="relative">
                         <input type="text" id="zonaDisplay" readonly 
                                class="w-full bg-gray-50 border border-gray-200 p-4 pr-14 text-gray-900 rounded-xl font-bold focus:outline-none text-sm" 
-                               placeholder="Scan Lokasi...">
+                               placeholder="Tap icon kamera untuk scan...">
                         <button onclick="startCamera('ZONA')" class="absolute right-2 top-2 p-2 bg-blue-600 text-white rounded-lg shadow-lg active:scale-95 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -109,27 +123,34 @@
                     <div class="relative">
                         <input type="text" id="assetDisplay" readonly 
                                class="w-full bg-gray-50 border border-gray-200 p-4 pr-14 text-gray-900 rounded-xl font-bold focus:outline-none text-sm" 
-                               placeholder="Scan Unit...">
+                               placeholder="Scan ID Cutter...">
                         <button onclick="startCamera('ASSET')" class="absolute right-2 top-2 p-2 bg-blue-600 text-white rounded-lg shadow-lg active:scale-95 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                             </svg>
                         </button>
                     </div>
                 </div>
 
-                <button id="submitBtn" onclick="submitData()" class="w-full py-4 bg-gray-900 text-white font-black text-sm rounded-2xl shadow-xl hover:bg-blue-700 transition duration-300">
-                    SIMPAN KE DATABASE
+                <button id="submitBtn" onclick="submitData()" class="w-full py-4 bg-gray-900 text-white font-black text-sm rounded-2xl shadow-xl hover:bg-blue-700 transition duration-300 active:scale-[0.98]">
+                    SIMPAN & UPDATE TABEL
                 </button>
             </div>
 
             <div class="app-card overflow-hidden">
                 <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Unit Dipinjam</h3>
-                    <span id="statOut" class="bg-orange-100 text-orange-600 text-[10px] px-2 py-0.5 rounded-full font-bold">0 OUT</span>
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cutter Sedang Dipinjam</h3>
+                    <span id="outBadge" class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold">0 UNIT</span>
                 </div>
-                <div class="max-h-64 overflow-y-auto">
-                    <table class="w-full text-left text-sm">
+                <div class="max-h-72 overflow-y-auto custom-scroll">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 text-[9px] font-bold text-gray-400 uppercase border-b border-gray-100">
+                            <tr>
+                                <th class="px-5 py-3">ID Pinjam</th>
+                                <th class="px-5 py-3 text-center">Zona</th>
+                                <th class="px-5 py-3 text-right">Waktu</th>
+                            </tr>
+                        </thead>
                         <tbody id="assetTable" class="divide-y divide-gray-100">
                             </tbody>
                     </table>
@@ -139,51 +160,38 @@
     </div>
 
     <script>
+        // API URL Pastikan menggunakan URL Exec terbaru
         const API_URL = "https://script.google.com/macros/s/AKfycbxERurz5XLHHI630eGb7ixMkulJ3lFMk0kOxRNlBTJu2FHBmGqmFMlljmo-0scqq88B/exec";
+        
         let currentMode = "PINJAM";
         let isProcessing = false;
         let html5QrCode;
         let scanTarget = "";
 
-        /**
-         * FUNGSI KAMERA (Optimized for Speed)
+        /** * 1. LOGIKA KAMERA 
          */
         async function startCamera(target) {
             scanTarget = target;
-            
-            // UI Feedback
-            document.getElementById('statusText').innerText = "Inisialisasi...";
+            document.getElementById('statusText').innerText = "Membuka Kamera...";
             document.getElementById('cameraArea').classList.remove('hidden');
-            document.getElementById('mainContent').classList.add('opacity-30', 'pointer-events-none');
+            document.getElementById('mainContent').classList.add('opacity-20', 'pointer-events-none');
 
-            // Hancurkan instance lama jika ada (mencegah memory leak/delay)
             if (html5QrCode) {
                 try { await html5QrCode.clear(); } catch(e) {}
             }
 
             html5QrCode = new Html5Qrcode("reader");
-            
-            // Konfigurasi performa tinggi
             const config = { 
-                fps: 25, // Frame per second lebih tinggi agar lebih responsif
+                fps: 20, 
                 qrbox: { width: 250, height: 250 },
-                aspectRatio: 1.0,
-                experimentalFeatures: {
-                    useBarCodeDetectorIfSupported: true // Gunakan deteksi hardware jika ada
-                }
+                aspectRatio: 1.0 
             };
 
             try {
-                // Memaksa browser menggunakan kamera belakang (environment) secara langsung
-                await html5QrCode.start(
-                    { facingMode: "environment" }, 
-                    config, 
-                    onScanSuccess
-                );
+                await html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
                 document.getElementById('statusText').innerText = "Scanner Aktif";
             } catch (err) {
-                console.error("Gagal start kamera:", err);
-                alert("Kamera Error. Pastikan Anda klik 'Allow' pada izin browser.");
+                alert("Izin kamera ditolak atau tidak ditemukan.");
                 stopCamera();
             }
         }
@@ -192,48 +200,47 @@
             if (html5QrCode && html5QrCode.isScanning) {
                 html5QrCode.stop().then(() => {
                     document.getElementById('cameraArea').classList.add('hidden');
-                    document.getElementById('mainContent').classList.remove('opacity-30', 'pointer-events-none');
+                    document.getElementById('mainContent').classList.remove('opacity-20', 'pointer-events-none');
                     document.getElementById('statusText').innerText = "System Ready";
-                }).catch(err => console.error("Gagal stop:", err));
+                }).catch(err => console.log(err));
             } else {
                 document.getElementById('cameraArea').classList.add('hidden');
-                document.getElementById('mainContent').classList.remove('opacity-30', 'pointer-events-none');
+                document.getElementById('mainContent').classList.remove('opacity-20', 'pointer-events-none');
             }
         }
 
         function onScanSuccess(decodedText) {
             const result = decodedText.toUpperCase().trim();
-            vibrate(70);
-
+            vibrate(60);
+            
             if (scanTarget === "ZONA") {
                 document.getElementById('zonaDisplay').value = result;
+                document.getElementById('zonaStatus').classList.remove('hidden');
             } else {
                 document.getElementById('assetDisplay').value = result;
             }
-            
             stopCamera();
         }
 
-        /**
-         * FUNGSI DATA & DATABASE
+        /** * 2. LOGIKA KIRIM DATA (SUBMIT) 
          */
         async function submitData() {
             const zona = document.getElementById('zonaDisplay').value;
             const asset = document.getElementById('assetDisplay').value;
 
             if (!zona || !asset) {
-                alert("Data belum lengkap. Silakan scan Zona dan Unit.");
+                alert("Scan ZONA dan UNIT terlebih dahulu!");
                 return;
             }
 
             isProcessing = true;
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerText = "Sedang Menyimpan...";
-            document.getElementById('statusText').innerText = "Sync Database...";
+            btn.innerText = "SINKRONISASI DRIVE...";
+            document.getElementById('statusText').innerText = "Mengirim...";
 
             try {
-                // Kirim ke Apps Script
+                // Proses pengiriman ke Google Sheets Drive
                 await fetch(API_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -246,52 +253,79 @@
                     })
                 });
 
-                // Reset field asset setelah sukses
+                // Reset field asset agar bisa scan asset lain tanpa hapus zona
                 document.getElementById('assetDisplay').value = "";
-                document.getElementById('statusText').innerText = "Data Tersimpan!";
-                vibrate([50, 50, 50]);
+                document.getElementById('statusText').innerText = "Tersimpan!";
+                vibrate([50, 100, 50]);
                 
-                // Refresh Tabel
-                syncData();
+                // Segera update tabel setelah kirim
+                setTimeout(syncData, 1500); 
+
             } catch (err) {
-                alert("Koneksi gagal. Cek internet Anda.");
+                alert("Error: Gagal terhubung ke Database.");
             } finally {
                 isProcessing = false;
                 btn.disabled = false;
-                btn.innerText = "SIMPAN KE DATABASE";
+                btn.innerText = "SIMPAN & UPDATE TABEL";
             }
         }
 
+        /** * 3. LOGIKA UPDATE TABEL (VIEW DATA)
+         */
         async function syncData() {
             if (isProcessing) return;
+            
             try {
+                // Fetch data dari API (doGet di Apps Script)
                 const response = await fetch(API_URL);
                 const res = await response.json();
                 
-                document.getElementById('statOut').innerText = res.stats.out + " OUT";
+                // Update Badge Angka
+                document.getElementById('outBadge').innerText = res.stats.out + " UNIT";
 
                 const tbody = document.getElementById('assetTable');
-                if (res.listDipinjam.length === 0) {
-                    tbody.innerHTML = `<tr><td class="px-5 py-10 text-center text-gray-400 font-medium">Kosong</td></tr>`;
-                } else {
-                    tbody.innerHTML = res.listDipinjam.map(item => `
-                        <tr class="hover:bg-gray-50">
+                
+                // Jika tidak ada data yang dipinjam
+                if (!res.listDipinjam || res.listDipinjam.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="3" class="px-5 py-10 text-center text-gray-400 text-xs font-medium italic">Semua cutter berada di base / Tersedia</td></tr>`;
+                    return;
+                }
+
+                // Render baris tabel
+                tbody.innerHTML = res.listDipinjam.map(item => {
+                    // Memisahkan Waktu (Dibuat lebih rapi)
+                    // Asumsi item.waktu berformat "08/05/2026 09:15:00" atau sejenisnya
+                    const timePart = item.waktu.split(' ');
+                    const tanggal = timePart[0] || "";
+                    const jam = timePart[1] ? timePart[1].substring(0, 5) : ""; // Ambil HH:mm saja
+
+                    return `
+                        <tr class="hover:bg-blue-50 transition duration-150">
                             <td class="px-5 py-4">
-                                <p class="font-bold text-gray-900">${item.id}</p>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase">${item.zona}</p>
+                                <p class="text-sm font-bold text-gray-900 tracking-tight">${item.id}</p>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">${item.user || 'PIC_FIELD'}</p>
+                            </td>
+                            <td class="px-5 py-4 text-center">
+                                <span class="bg-blue-50 text-blue-600 text-[10px] font-black px-2 py-1 rounded border border-blue-100 uppercase">
+                                    ${item.zona}
+                                </span>
                             </td>
                             <td class="px-5 py-4 text-right">
-                                <p class="text-[10px] font-bold text-gray-900">${item.waktu.split(' ')[1]}</p>
-                                <p class="text-[9px] text-gray-400">${item.waktu.split(' ')[0]}</p>
+                                <p class="text-xs font-bold text-gray-800">${jam}</p>
+                                <p class="text-[9px] text-gray-400">${tanggal}</p>
                             </td>
                         </tr>
-                    `).join('');
-                }
+                    `;
+                }).join('');
+
+                console.log("Sync Success: Table Updated");
             } catch (e) {
-                console.error("Gagal update tabel:", e);
+                console.error("Gagal sinkronisasi tabel:", e);
             }
         }
 
+        /** * 4. FUNGSI PENDUKUNG (UI UTILS) 
+         */
         function setMode(mode) {
             currentMode = mode;
             const tP = document.getElementById('tabPinjam');
@@ -306,10 +340,14 @@
             }
         }
 
-        function vibrate(pattern) { if (navigator.vibrate) navigator.vibrate(pattern); }
+        function vibrate(pattern) {
+            if (navigator.vibrate) navigator.vibrate(pattern);
+        }
 
-        // Sinkronisasi otomatis setiap 10 detik
+        // Auto Sync setiap 10 detik agar tetap up-to-date
         setInterval(syncData, 10000);
+        
+        // Jalankan sinkronisasi pertama kali saat halaman dimuat
         window.onload = syncData;
     </script>
 </body>
