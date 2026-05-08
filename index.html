@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Cutter Monitoring | Muly@.ID</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'JetBrains Mono', monospace; background-color: #0a0a0a; color: #10b981; }
+        .terminal-border { border: 1px solid #065f46; box-shadow: 0 0 15px rgba(5, 150, 105, 0.1); }
+        #reader { width: 100%; border-radius: 12px; border: 1px solid #065f46; overflow: hidden; background: #000; }
+        #reader__dashboard_section_csr button {
+            background: #065f46 !important; color: white !important; border: none !important;
+            padding: 8px 16px !important; border-radius: 4px !important; cursor: pointer !important;
+            font-size: 12px !important; margin: 10px 5px !important;
+        }
+        .loading-blink { animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-xl mx-auto">
+        <div class="flex justify-between items-center border-b border-green-900 mb-6 pb-4">
+            <div>
+                <h1 class="text-xl font-bold tracking-tighter">CUTTER_MONITOR_v3.5</h1>
+                <p class="text-[10px] text-green-800 uppercase">Hybrid System: GitHub + Google Sheets</p>
+            </div>
+            <div id="statusIndicator" class="text-[10px] bg-green-900/30 border border-green-700 text-green-400 px-3 py-1 rounded-full uppercase">
+                System Online
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <div id="reader" class="terminal-border"></div>
+            <p class="text-[9px] text-center mt-2 text-green-900 italic">Pastikan QR Code terlihat jelas di tengah kotak</p>
+        </div>
+
+        <div class="bg-black terminal-border p-5 rounded-xl mb-6">
+            <div class="grid grid-cols-2 gap-4 mb-4 text-center">
+                <div class="space-y-1">
+                    <label class="text-[8px] text-blue-400 font-bold uppercase">Zona Terkunci</label>
+                    <input type="text" id="zonaDisplay" readonly class="w-full bg-blue-900/10 border border-blue-900 p-2 text-xs text-blue-400 rounded-md text-center font-bold uppercase outline-none" placeholder="[ SCAN ZONA ]">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[8px] text-green-400 font-bold uppercase">Cutter Terakhir</label>
+                    <input type="text" id="assetDisplay" readonly class="w-full bg-gray-950 border border-green-900 p-2 text-xs text-green-400 rounded-md text-center font-bold uppercase outline-none" placeholder="[ SCAN CUTTER ]">
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-4 border-t border-green-900/30">
+                <div id="modeLabel" class="text-[10px] font-bold text-red-500 tracking-widest uppercase">MODE: PINJAM</div>
+                <div class="flex gap-2">
+                    <button onclick="setMode('PINJAM')" class="px-4 py-2 bg-red-900/20 border border-red-800 text-red-500 text-[10px] font-bold rounded hover:bg-red-900/40">PINJAM</button>
+                    <button onclick="setMode('KEMBALI')" class="px-4 py-2 bg-green-900/20 border border-green-800 text-green-500 text-[10px] font-bold rounded hover:bg-green-900/40">KEMBALI</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 mb-6 text-center">
+            <div class="bg-gray-900/40 p-3 terminal-border rounded-lg">
+                <div class="text-[8px] text-gray-500 uppercase">Registered</div>
+                <div id="statTotal" class="text-xl font-bold text-white">0</div>
+            </div>
+            <div class="bg-gray-900/40 p-3 terminal-border rounded-lg border-red-900/50">
+                <div class="text-[8px] text-gray-500 uppercase">Out</div>
+                <div id="statOut" class="text-xl font-bold text-red-500">0</div>
+            </div>
+            <div class="bg-gray-900/40 p-3 terminal-border rounded-lg border-blue-900/50">
+                <div class="text-[8px] text-gray-500 uppercase">Ready</div>
+                <div id="statAvailable" class="text-xl font-bold text-blue-400">0</div>
+            </div>
+        </div>
+
+        <div class="bg-gray-900/20 terminal-border rounded-lg overflow-hidden">
+            <div class="p-3 bg-black/50 border-b border-green-900/50 text-[9px] font-bold flex justify-between">
+                <span>LIST CUTTER DIPINJAM</span>
+                <span class="text-green-900 uppercase">Auto-Sync 5s</span>
+            </div>
+            <div class="max-h-60 overflow-y-auto">
+                <table class="w-full text-left text-[10px]">
+                    <thead class="bg-black/50 text-green-800 sticky top-0">
+                        <tr>
+                            <th class="p-3">ID ASSET</th>
+                            <th class="p-3">ZONA</th>
+                            <th class="p-3 text-center">STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assetTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- KONFIGURASI ---
+        const API_URL = "https://script.google.com/macros/s/AKfycbxERurz5XLHHI630eGb7ixMkulJ3lFMk0kOxRNlBTJu2FHBmGqmFMlljmo-0scqq88B/exec";
+        let currentMode = "PINJAM";
+        let isProcessing = false;
+
+        // --- INISIALISASI SCANNER ---
+        function onScanSuccess(decodedText) {
+            if (isProcessing) return;
+
+            const scanResult = decodedText.toUpperCase().trim();
+
+            // Logic: Jika QR mengandung kata "ZONA", masuk ke input zona
+            if (scanResult.includes("ZONA")) {
+                document.getElementById('zonaDisplay').value = scanResult;
+                vibrate(50);
+                updateStatus("Zona: " + scanResult + " terkunci", "text-blue-400");
+            } else {
+                // Scan Asset
+                const zonaVal = document.getElementById('zonaDisplay').value;
+                if (!zonaVal) {
+                    alert("PERINGATAN: Silakan scan QR ZONA terlebih dahulu!");
+                    vibrate([100, 50, 100]);
+                    return;
+                }
+                
+                document.getElementById('assetDisplay').value = scanResult;
+                executeTransaction(scanResult, zonaVal);
+            }
+        }
+
+        async function executeTransaction(assetId, zonaId) {
+            isProcessing = true;
+            vibrate(100);
+            updateStatus("Sinkronisasi database...", "text-yellow-500 loading-blink");
+
+            try {
+                // Kirim data ke Google Sheets via Fetch API
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Diperlukan untuk Google Apps Script
+                    cache: 'no-cache',
+                    body: JSON.stringify({
+                        assetId: assetId,
+                        zonaId: zonaId,
+                        statusAksi: currentMode,
+                        user: "PIC_FIELD"
+                    })
+                });
+
+                // Karena no-cors, kita tidak bisa baca body response, 
+                // tapi kita asumsikan sukses jika fetch tidak throw error.
+                updateStatus(assetId + " BERHASIL " + currentMode, "text-green-400 font-bold");
+                vibrate([50, 30, 50]);
+                
+                // Refresh data setelah 1.5 detik
+                setTimeout(syncData, 1500);
+            } catch (err) {
+                updateStatus("ERROR: Gagal terhubung ke API", "text-red-500");
+                alert("Koneksi bermasalah: " + err);
+            } finally {
+                setTimeout(() => { isProcessing = false; }, 3000);
+            }
+        }
+
+        async function syncData() {
+            if (isProcessing) return;
+            try {
+                const response = await fetch(API_URL);
+                const res = await response.json();
+                
+                document.getElementById('statTotal').innerText = res.stats.total;
+                document.getElementById('statOut').innerText = res.stats.out;
+                document.getElementById('statAvailable').innerText = res.stats.available;
+
+                const tbody = document.getElementById('assetTable');
+                if (res.listDipinjam.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-gray-700 italic">Semua asset tersedia</td></tr>`;
+                } else {
+                    tbody.innerHTML = res.listDipinjam.map(item => `
+                        <tr class="border-b border-green-900/10 hover:bg-green-900/5">
+                            <td class="p-3 text-white font-bold">${item.id}</td>
+                            <td class="p-3 text-blue-400">${item.zona}</td>
+                            <td class="p-3 text-center">
+                                <span class="bg-red-900/20 text-red-500 px-2 py-0.5 rounded text-[8px] font-bold border border-red-900/50">OUT</span>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error("Gagal sinkronisasi tabel:", e);
+            }
+        }
+
+        // --- UTILS ---
+        function setMode(mode) {
+            currentMode = mode;
+            const label = document.getElementById('modeLabel');
+            label.innerText = "MODE: " + mode;
+            label.className = mode === 'PINJAM' ? "text-[10px] font-bold text-red-500 tracking-widest uppercase" : "text-[10px] font-bold text-green-500 tracking-widest uppercase";
+        }
+
+        function updateStatus(msg, className) {
+            const ind = document.getElementById('statusIndicator');
+            ind.innerText = msg;
+            ind.className = "text-[10px] bg-black/50 border border-green-700 px-3 py-1 rounded-full uppercase " + className;
+        }
+
+        function vibrate(pattern) {
+            if (navigator.vibrate) navigator.vibrate(pattern);
+        }
+
+        // Jalankan Scanner
+        const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 15, qrbox: 250 });
+        html5QrcodeScanner.render(onScanSuccess);
+
+        // Auto Sync setiap 5 detik
+        setInterval(syncData, 5000);
+        window.onload = syncData;
+    </script>
+</body>
+</html>
