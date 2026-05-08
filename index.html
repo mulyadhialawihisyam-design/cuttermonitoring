@@ -3,179 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cutter Monitoring System | Muly@.ID</title>
+    <title>Cutter Monitoring | Muly@.ID</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
+            background-color: #f4f7fa;
+            color: #2d3748;
             -webkit-tap-highlight-color: transparent;
         }
         .app-card {
             background: white;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
         }
         #reader {
             width: 100%;
-            border-radius: 0.75rem;
+            border-radius: 1rem;
             overflow: hidden;
-            border: 2px solid #e5e7eb;
             background-color: #000;
+            border: 3px solid #ebf1f9;
         }
-        /* Menghilangkan tombol internal library */
-        #reader__dashboard_section_csr button {
-            display: none !important;
+        /* Sembunyikan elemen internal library scanner yang tidak perlu */
+        #reader__dashboard_section_csr button { display: none !important; }
+        #reader__status_span { display: none !important; }
+        
+        .tab-active {
+            background-color: #2563eb;
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
-        #reader video {
-            border-radius: 0.75rem;
-            object-fit: cover;
+        .tab-inactive {
+            color: #718096;
         }
-        .status-dot {
-            height: 8px;
-            width: 8px;
-            background-color: #10b981;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 6px;
+        .status-pulse {
+            animation: pulse-green 2s infinite;
         }
-        .pulse {
-            animation: pulse-animation 2s infinite;
-        }
-        @keyframes pulse-animation {
+        @keyframes pulse-green {
             0% { box-shadow: 0 0 0 0px rgba(16, 185, 129, 0.4); }
-            100% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-        }
-        /* Style scrollbar agar lebih cantik */
-        .custom-scroll::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scroll::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: #d1d5db;
-            border-radius: 10px;
+            100% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
         }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased pb-12">
 
-    <div class="max-w-md mx-auto min-h-screen flex flex-col p-4 pb-10">
+    <div class="max-w-md mx-auto p-4 space-y-5">
         
-        <header class="flex justify-between items-center mb-6 py-2">
+        <header class="flex justify-between items-center py-4">
             <div>
-                <h1 class="text-xl font-bold text-blue-600 tracking-tight">Cutter Tracker</h1>
-                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Muly@.ID Monitoring</p>
+                <h1 class="text-2xl font-black text-gray-900 tracking-tighter">Muly@.ID</h1>
+                <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Cutter Monitoring System</p>
             </div>
-            <div class="flex items-center bg-white px-3 py-1 rounded-full shadow-sm border border-gray-100">
-                <span class="status-dot pulse"></span>
-                <span id="statusText" class="text-[10px] font-bold text-gray-600 uppercase tracking-tight">System Ready</span>
+            <div class="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-full border border-gray-100 shadow-sm">
+                <div class="w-2 h-2 bg-green-500 rounded-full status-pulse"></div>
+                <span id="systemStatus" class="text-[9px] font-black text-gray-600 uppercase">System Live</span>
             </div>
         </header>
 
-        <div id="cameraArea" class="hidden mb-6 transition-all duration-300">
-            <div class="app-card p-3 border-2 border-blue-500 shadow-2xl">
+        <div id="cameraContainer" class="hidden animate-in fade-in zoom-in duration-300">
+            <div class="app-card p-3 border-2 border-blue-500">
                 <div id="reader"></div>
-                <div class="mt-3">
-                    <button onclick="stopCamera()" class="w-full py-3 bg-red-50 text-red-600 font-bold text-sm rounded-xl hover:bg-red-100 transition">
-                        BATALKAN SCAN
-                    </button>
-                </div>
+                <button onclick="stopCamera()" class="w-full mt-3 py-3 bg-red-50 text-red-600 font-bold text-xs rounded-xl hover:bg-red-100 transition">
+                    BATALKAN PEMINDAIAN
+                </button>
             </div>
         </div>
 
-        <div id="mainContent" class="space-y-4">
+        <div id="formSection" class="app-card p-6 space-y-6">
             
-            <div class="app-card p-1.5 flex bg-gray-200">
-                <button id="tabPinjam" onclick="setMode('PINJAM')" class="flex-1 py-2.5 text-sm font-bold rounded-lg transition-all bg-blue-600 text-white shadow-md">
-                    PINJAM
+            <div class="flex bg-gray-100 p-1.5 rounded-2xl">
+                <button id="modePinjam" onclick="setMode('PINJAM')" class="flex-1 py-3 text-xs font-black rounded-xl transition-all tab-active uppercase">
+                    Pinjam
                 </button>
-                <button id="tabKembali" onclick="setMode('KEMBALI')" class="flex-1 py-2.5 text-sm font-bold rounded-lg transition-all text-gray-600">
-                    KEMBALI
+                <button id="modeKembali" onclick="setMode('KEMBALI')" class="flex-1 py-3 text-xs font-black rounded-xl transition-all tab-inactive uppercase">
+                    Kembali
                 </button>
             </div>
 
-            <div class="app-card p-6 space-y-6">
+            <div class="space-y-4">
                 <div class="space-y-2">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest flex justify-between">
-                        <span>LOKASI / ZONA</span>
-                        <span id="zonaStatus" class="text-blue-500 hidden font-bold italic">Terkunci</span>
-                    </label>
-                    <div class="relative">
-                        <input type="text" id="zonaDisplay" readonly 
-                               class="w-full bg-gray-50 border border-gray-200 p-4 pr-14 text-gray-900 rounded-xl font-bold focus:outline-none text-sm" 
-                               placeholder="Tap icon kamera untuk scan...">
-                        <button onclick="startCamera('ZONA')" class="absolute right-2 top-2 p-2 bg-blue-600 text-white rounded-lg shadow-lg active:scale-95 transition">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">ID Unit Cutter</label>
+                    <div class="relative flex items-center">
+                        <input type="text" id="assetIdInput" readonly 
+                               class="w-full bg-gray-50 border border-gray-100 p-4 pr-16 rounded-2xl font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm" 
+                               placeholder="Klik ikon untuk scan...">
+                        <button onclick="startCamera()" class="absolute right-2 p-2.5 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-200 active:scale-90 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                             </svg>
                         </button>
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">ID UNIT CUTTER</label>
-                    <div class="relative">
-                        <input type="text" id="assetDisplay" readonly 
-                               class="w-full bg-gray-50 border border-gray-200 p-4 pr-14 text-gray-900 rounded-xl font-bold focus:outline-none text-sm" 
-                               placeholder="Scan ID Cutter...">
-                        <button onclick="startCamera('ASSET')" class="absolute right-2 top-2 p-2 bg-blue-600 text-white rounded-lg shadow-lg active:scale-95 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <button id="submitBtn" onclick="submitData()" class="w-full py-4 bg-gray-900 text-white font-black text-sm rounded-2xl shadow-xl hover:bg-blue-700 transition duration-300 active:scale-[0.98]">
-                    SIMPAN & UPDATE TABEL
+                <button id="submitBtn" onclick="submitData()" 
+                        class="w-full py-4 bg-gray-900 text-white font-black text-sm rounded-2xl shadow-xl shadow-gray-200 hover:bg-blue-700 transition duration-300 active:scale-[0.97]">
+                    SIMPAN DATA KE DRIVE
                 </button>
-            </div>
-
-            <div class="app-card overflow-hidden">
-                <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cutter Sedang Dipinjam</h3>
-                    <span id="outBadge" class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold">0 UNIT</span>
-                </div>
-                <div class="max-h-72 overflow-y-auto custom-scroll">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-50 text-[9px] font-bold text-gray-400 uppercase border-b border-gray-100">
-                            <tr>
-                                <th class="px-5 py-3">ID Pinjam</th>
-                                <th class="px-5 py-3 text-center">Zona</th>
-                                <th class="px-5 py-3 text-right">Waktu</th>
-                            </tr>
-                        </thead>
-                        <tbody id="assetTable" class="divide-y divide-gray-100">
-                            </tbody>
-                    </table>
-                </div>
             </div>
         </div>
+
+        <div class="app-card overflow-hidden">
+            <div class="px-6 py-5 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
+                <div>
+                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Daftar Pinjaman</h3>
+                    <p class="text-[9px] text-gray-400 font-medium">Data diperbarui otomatis</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="outBadge" class="bg-blue-50 text-blue-600 text-[10px] font-black px-3 py-1 rounded-full border border-blue-100">0 UNIT OUT</span>
+                </div>
+            </div>
+            
+            <div class="max-h-80 overflow-y-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-[9px] font-black text-gray-400 uppercase border-b border-gray-100">
+                        <tr>
+                            <th class="px-6 py-3">ID Asset / Unit</th>
+                            <th class="px-6 py-3 text-right">Waktu Pinjam</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody" class="divide-y divide-gray-50">
+                        <tr>
+                            <td colspan="2" class="px-6 py-10 text-center text-gray-400 text-xs font-medium italic">
+                                Mengambil data dari server...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // API URL Pastikan menggunakan URL Exec terbaru
-        const API_URL = "https://script.google.com/macros/s/AKfycbxERurz5XLHHI630eGb7ixMkulJ3lFMk0kOxRNlBTJu2FHBmGqmFMlljmo-0scqq88B/exec";
+        /**
+         * PENTING: Ganti URL di bawah ini dengan URL Web App (Deployment) 
+         * yang kamu dapatkan dari Google Apps Script setelah deploy ulang.
+         */
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxERurz5XLHHI630eGb7ixMkulJ3lFMk0kOxRNlBTJu2FHBmGqmFMlljmo-0scqq88B/exec";
         
         let currentMode = "PINJAM";
-        let isProcessing = false;
-        let html5QrCode;
-        let scanTarget = "";
+        let html5QrCode = null;
 
-        /** * 1. LOGIKA KAMERA 
+        /**
+         * 📷 FUNGSI KAMERA
          */
-        async function startCamera(target) {
-            scanTarget = target;
-            document.getElementById('statusText').innerText = "Membuka Kamera...";
-            document.getElementById('cameraArea').classList.remove('hidden');
-            document.getElementById('mainContent').classList.add('opacity-20', 'pointer-events-none');
-
+        async function startCamera() {
+            const container = document.getElementById('cameraContainer');
+            const form = document.getElementById('formSection');
+            
+            container.classList.remove('hidden');
+            form.classList.add('opacity-30', 'pointer-events-none');
+            
             if (html5QrCode) {
                 try { await html5QrCode.clear(); } catch(e) {}
             }
@@ -188,167 +169,157 @@
             };
 
             try {
-                await html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
-                document.getElementById('statusText').innerText = "Scanner Aktif";
+                await html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    config, 
+                    (decodedText) => {
+                        document.getElementById('assetIdInput').value = decodedText.toUpperCase().trim();
+                        vibratePhone(70);
+                        stopCamera();
+                    }
+                );
             } catch (err) {
-                alert("Izin kamera ditolak atau tidak ditemukan.");
+                alert("Kamera tidak bisa diakses. Pastikan izin diberikan.");
                 stopCamera();
             }
         }
 
         function stopCamera() {
-            if (html5QrCode && html5QrCode.isScanning) {
+            if (html5QrCode) {
                 html5QrCode.stop().then(() => {
-                    document.getElementById('cameraArea').classList.add('hidden');
-                    document.getElementById('mainContent').classList.remove('opacity-20', 'pointer-events-none');
-                    document.getElementById('statusText').innerText = "System Ready";
-                }).catch(err => console.log(err));
-            } else {
-                document.getElementById('cameraArea').classList.add('hidden');
-                document.getElementById('mainContent').classList.remove('opacity-20', 'pointer-events-none');
+                    document.getElementById('cameraContainer').classList.add('hidden');
+                    document.getElementById('formSection').classList.remove('opacity-30', 'pointer-events-none');
+                }).catch(err => {
+                    document.getElementById('cameraContainer').classList.add('hidden');
+                    document.getElementById('formSection').classList.remove('opacity-30', 'pointer-events-none');
+                });
             }
         }
 
-        function onScanSuccess(decodedText) {
-            const result = decodedText.toUpperCase().trim();
-            vibrate(60);
-            
-            if (scanTarget === "ZONA") {
-                document.getElementById('zonaDisplay').value = result;
-                document.getElementById('zonaStatus').classList.remove('hidden');
-            } else {
-                document.getElementById('assetDisplay').value = result;
-            }
-            stopCamera();
-        }
-
-        /** * 2. LOGIKA KIRIM DATA (SUBMIT) 
+        /**
+         * 💾 FUNGSI KIRIM DATA (POST)
          */
         async function submitData() {
-            const zona = document.getElementById('zonaDisplay').value;
-            const asset = document.getElementById('assetDisplay').value;
+            const assetId = document.getElementById('assetIdInput').value;
+            const btn = document.getElementById('submitBtn');
 
-            if (!zona || !asset) {
-                alert("Scan ZONA dan UNIT terlebih dahulu!");
+            if (!assetId) {
+                alert("Silakan scan QR Code Unit terlebih dahulu.");
                 return;
             }
 
-            isProcessing = true;
-            const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerText = "SINKRONISASI DRIVE...";
-            document.getElementById('statusText').innerText = "Mengirim...";
+            btn.innerHTML = `
+                <div class="flex items-center justify-center space-x-2">
+                    <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span>SINKRONISASI DATA...</span>
+                </div>
+            `;
 
             try {
-                // Proses pengiriman ke Google Sheets Drive
-                await fetch(API_URL, {
+                // Mengirim data ke doPost di Apps Script
+                await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     cache: 'no-cache',
                     body: JSON.stringify({
-                        assetId: asset,
-                        zonaId: zona,
-                        statusAksi: currentMode,
-                        user: "PIC_FIELD"
+                        assetId: assetId,
+                        statusAksi: currentMode
                     })
                 });
 
-                // Reset field asset agar bisa scan asset lain tanpa hapus zona
-                document.getElementById('assetDisplay').value = "";
-                document.getElementById('statusText').innerText = "Tersimpan!";
-                vibrate([50, 100, 50]);
+                // Reset form & Berikan Feedback
+                document.getElementById('assetIdInput').value = "";
+                vibratePhone([50, 100, 50]);
                 
-                // Segera update tabel setelah kirim
-                setTimeout(syncData, 1500); 
+                // Segera refresh tabel setelah jeda singkat (agar server selesai menulis)
+                setTimeout(syncData, 1500);
 
             } catch (err) {
-                alert("Error: Gagal terhubung ke Database.");
+                alert("Koneksi gagal. Pastikan URL Script benar.");
             } finally {
-                isProcessing = false;
                 btn.disabled = false;
-                btn.innerText = "SIMPAN & UPDATE TABEL";
+                btn.innerText = "SIMPAN DATA KE DRIVE";
             }
         }
 
-        /** * 3. LOGIKA UPDATE TABEL (VIEW DATA)
+        /**
+         * 📊 FUNGSI AMBIL DATA TABEL (GET)
          */
         async function syncData() {
-            if (isProcessing) return;
+            const tbody = document.getElementById('dataTableBody');
+            const badge = document.getElementById('outBadge');
             
             try {
-                // Fetch data dari API (doGet di Apps Script)
-                const response = await fetch(API_URL);
+                // Memanggil doGet dengan parameter action=getdata
+                const response = await fetch(SCRIPT_URL + "?action=getdata");
                 const res = await response.json();
                 
-                // Update Badge Angka
-                document.getElementById('outBadge').innerText = res.stats.out + " UNIT";
+                // Update statistik angka
+                badge.innerText = `${res.stats.out} UNIT OUT`;
 
-                const tbody = document.getElementById('assetTable');
-                
-                // Jika tidak ada data yang dipinjam
+                // Cek jika data kosong
                 if (!res.listDipinjam || res.listDipinjam.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="3" class="px-5 py-10 text-center text-gray-400 text-xs font-medium italic">Semua cutter berada di base / Tersedia</td></tr>`;
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="2" class="px-6 py-12 text-center text-gray-400 text-[10px] font-bold uppercase tracking-widest italic">
+                                Semua cutter tersedia di rak
+                            </td>
+                        </tr>
+                    `;
                     return;
                 }
 
                 // Render baris tabel
-                tbody.innerHTML = res.listDipinjam.map(item => {
-                    // Memisahkan Waktu (Dibuat lebih rapi)
-                    // Asumsi item.waktu berformat "08/05/2026 09:15:00" atau sejenisnya
-                    const timePart = item.waktu.split(' ');
-                    const tanggal = timePart[0] || "";
-                    const jam = timePart[1] ? timePart[1].substring(0, 5) : ""; // Ambil HH:mm saja
+                tbody.innerHTML = res.listDipinjam.map(item => `
+                    <tr class="hover:bg-blue-50 transition duration-150">
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-black text-gray-900 tracking-tight">${item.id}</span>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">PIC: ${item.user || 'SYSTEM'}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-black text-gray-700">${item.waktu.split(' ')[1]}</span>
+                                <span class="text-[9px] font-bold text-gray-400">${item.waktu.split(' ')[0]}</span>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
 
-                    return `
-                        <tr class="hover:bg-blue-50 transition duration-150">
-                            <td class="px-5 py-4">
-                                <p class="text-sm font-bold text-gray-900 tracking-tight">${item.id}</p>
-                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">${item.user || 'PIC_FIELD'}</p>
-                            </td>
-                            <td class="px-5 py-4 text-center">
-                                <span class="bg-blue-50 text-blue-600 text-[10px] font-black px-2 py-1 rounded border border-blue-100 uppercase">
-                                    ${item.zona}
-                                </span>
-                            </td>
-                            <td class="px-5 py-4 text-right">
-                                <p class="text-xs font-bold text-gray-800">${jam}</p>
-                                <p class="text-[9px] text-gray-400">${tanggal}</p>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-
-                console.log("Sync Success: Table Updated");
-            } catch (e) {
-                console.error("Gagal sinkronisasi tabel:", e);
+                console.log("Database Synced Successfully.");
+            } catch (err) {
+                console.warn("Syncing database failed. Retrying...");
             }
         }
 
-        /** * 4. FUNGSI PENDUKUNG (UI UTILS) 
+        /**
+         * 🛠️ UTILITIES UI
          */
         function setMode(mode) {
             currentMode = mode;
-            const tP = document.getElementById('tabPinjam');
-            const tK = document.getElementById('tabKembali');
+            const btnP = document.getElementById('modePinjam');
+            const btnK = document.getElementById('modeKembali');
 
             if (mode === 'PINJAM') {
-                tP.className = "flex-1 py-2.5 text-sm font-bold rounded-lg bg-blue-600 text-white shadow-md";
-                tK.className = "flex-1 py-2.5 text-sm font-bold rounded-lg text-gray-600";
+                btnP.className = "flex-1 py-3 text-xs font-black rounded-xl transition-all tab-active uppercase";
+                btnK.className = "flex-1 py-3 text-xs font-black rounded-xl transition-all tab-inactive uppercase";
             } else {
-                tK.className = "flex-1 py-2.5 text-sm font-bold rounded-lg bg-green-600 text-white shadow-md";
-                tP.className = "flex-1 py-2.5 text-sm font-bold rounded-lg text-gray-600";
+                btnK.className = "flex-1 py-3 text-xs font-black rounded-xl transition-all bg-green-600 text-white shadow-lg shadow-green-100 uppercase";
+                btnP.className = "flex-1 py-3 text-xs font-black rounded-xl transition-all tab-inactive uppercase";
             }
         }
 
-        function vibrate(pattern) {
+        function vibratePhone(pattern) {
             if (navigator.vibrate) navigator.vibrate(pattern);
         }
 
-        // Auto Sync setiap 10 detik agar tetap up-to-date
-        setInterval(syncData, 10000);
-        
-        // Jalankan sinkronisasi pertama kali saat halaman dimuat
+        // Jalankan sinkronisasi pertama kali
         window.onload = syncData;
+
+        // Auto Refresh tabel setiap 15 detik
+        setInterval(syncData, 15000);
     </script>
 </body>
 </html>
