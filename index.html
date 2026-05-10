@@ -6,96 +6,96 @@
     <title>Cutter Monitoring | Muly@.ID</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f4f7fa;
-            color: #2d3748;
+            background-color: #f8fafc;
+            color: #0f172a;
             -webkit-tap-highlight-color: transparent;
         }
         .app-card {
             background: white;
-            border-radius: 1.25rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border-radius: 1rem;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
         }
         #reader {
             width: 100%;
-            border-radius: 1rem;
+            border-radius: 0.75rem;
             overflow: hidden;
             background-color: #000;
-            border: 3px solid #ebf1f9;
         }
-        /* Menyembunyikan kontrol bawaan library yang mengganggu */
+        /* Styling khusus video scanner */
         #reader__dashboard_section_csr button { display: none !important; }
         #reader__status_span { display: none !important; }
         #reader video { object-fit: cover !important; }
         
         .tab-active {
-            background-color: #2563eb;
+            background-color: #1e293b;
             color: white;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
         .tab-inactive {
-            color: #718096;
+            color: #64748b;
         }
         .status-pulse {
             animation: pulse-green 2s infinite;
         }
         @keyframes pulse-green {
-            0% { box-shadow: 0 0 0 0px rgba(16, 185, 129, 0.4); }
-            100% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            0% { box-shadow: 0 0 0 0px rgba(34, 197, 94, 0.4); }
+            100% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
         }
+        /* Custom Scrollbar for Table */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="antialiased pb-12">
+<body class="antialiased pb-6">
 
-    <div class="max-w-md mx-auto p-4 space-y-5">
+    <div class="max-w-md mx-auto p-4 space-y-4">
         
-        <header class="flex justify-between items-center py-4">
+        <header class="flex justify-between items-center py-2">
             <div>
-                <h1 class="text-2xl font-black text-gray-900 tracking-tighter">Muly@.ID</h1>
-                <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Cutter Monitoring System</p>
+                <h1 class="text-xl font-black text-slate-900 tracking-tighter leading-none">Muly@.ID</h1>
+                <p class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-[0.2em] mt-1">Asset Monitoring</p>
             </div>
-            <div class="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-full border border-gray-100 shadow-sm">
-                <div class="w-2 h-2 bg-green-500 rounded-full status-pulse"></div>
-                <span id="systemStatus" class="text-[9px] font-black text-gray-600 uppercase">System Live</span>
+            <div class="flex items-center space-x-2 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
+                <div class="w-1.5 h-1.5 bg-green-500 rounded-full status-pulse"></div>
+                <span id="systemStatus" class="text-[8px] font-black text-slate-700 uppercase tracking-tight">Connected</span>
             </div>
         </header>
 
-        <div id="cameraContainer" class="hidden transition-all duration-300">
-            <div class="app-card p-3 border-2 border-blue-500 shadow-2xl">
+        <div id="cameraContainer" class="hidden animate-in fade-in zoom-in duration-200">
+            <div class="app-card p-2 border-2 border-indigo-500">
                 <div id="reader"></div>
-                <div class="flex flex-col gap-2 mt-3">
-                    <p class="text-[9px] text-center text-gray-400 font-bold uppercase">Mencoba Mengunci Fokus Otomatis...</p>
-                    <button onclick="stopCamera()" class="w-full py-3 bg-red-50 text-red-600 font-bold text-xs rounded-xl hover:bg-red-100 transition">
-                        BATALKAN PEMINDAIAN
-                    </button>
-                </div>
+                <button onclick="stopCamera()" class="w-full mt-2 py-2.5 bg-red-50 text-red-600 font-bold text-[10px] rounded-lg uppercase tracking-widest">
+                    Batalkan Scan
+                </button>
             </div>
         </div>
 
-        <div id="formSection" class="app-card p-6 space-y-6">
+        <div id="formSection" class="app-card p-5 space-y-5">
             
-            <div class="flex bg-gray-100 p-1.5 rounded-2xl">
-                <button id="modePinjam" onclick="setMode('PINJAM')" class="flex-1 py-3 text-xs font-black rounded-xl transition-all tab-active uppercase">
+            <div class="flex bg-slate-100 p-1 rounded-xl">
+                <button id="modePinjam" onclick="setMode('PINJAM')" class="flex-1 py-2 text-[10px] font-black rounded-lg transition-all tab-active uppercase tracking-widest">
                     Pinjam
                 </button>
-                <button id="modeKembali" onclick="setMode('KEMBALI')" class="flex-1 py-3 text-xs font-black rounded-xl transition-all tab-inactive uppercase">
+                <button id="modeKembali" onclick="setMode('KEMBALI')" class="flex-1 py-2 text-[10px] font-black rounded-lg transition-all tab-inactive uppercase tracking-widest">
                     Kembali
                 </button>
             </div>
 
-            <div class="space-y-4">
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">ID Unit Cutter</label>
+            <div class="space-y-3">
+                <div class="space-y-1.5">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">ID Unit Cutter</label>
                     <div class="relative flex items-center">
                         <input type="text" id="assetIdInput" readonly 
-                               class="w-full bg-gray-50 border border-gray-100 p-4 pr-16 rounded-2xl font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm" 
-                               placeholder="Scan QR Unit...">
-                        <button onclick="startCamera()" class="absolute right-2 p-2.5 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-200 active:scale-90 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               class="w-full bg-slate-50 border border-slate-200 p-3 pr-12 rounded-xl font-bold text-slate-800 text-[12px] focus:ring-1 focus:ring-indigo-500 outline-none" 
+                               placeholder="Tap to scan QR Code...">
+                        <button onclick="startCamera()" class="absolute right-1.5 p-2 bg-indigo-600 text-white rounded-lg shadow-sm active:scale-90 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z" />
                             </svg>
                         </button>
@@ -103,35 +103,41 @@
                 </div>
 
                 <button id="submitBtn" onclick="submitData()" 
-                        class="w-full py-4 bg-gray-900 text-white font-black text-sm rounded-2xl shadow-xl shadow-gray-200 hover:bg-blue-700 transition duration-300 active:scale-[0.97]">
-                    SIMPAN DATA KE DRIVE
+                        class="w-full py-3.5 bg-slate-900 text-white font-black text-[11px] rounded-xl tracking-widest uppercase hover:bg-slate-800 transition active:scale-[0.98]">
+                    Simpan Log Transaksi
                 </button>
             </div>
         </div>
 
         <div class="app-card overflow-hidden">
-            <div class="px-6 py-5 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
-                <div>
-                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Daftar Pinjaman</h3>
-                    <p class="text-[9px] text-gray-400 font-medium">Auto-sync aktif</p>
+            <div class="px-5 py-4 border-b border-slate-50 bg-slate-50/50 flex flex-col space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Live Monitoring</h3>
+                    <span id="outBadge" class="bg-indigo-50 text-indigo-600 text-[9px] font-black px-2.5 py-1 rounded-md border border-indigo-100">0 UNIT OUT</span>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <span id="outBadge" class="bg-blue-50 text-blue-600 text-[10px] font-black px-3 py-1 rounded-full border border-blue-100">0 UNIT OUT</span>
+                
+                <div class="relative">
+                    <input type="text" id="searchInput" onkeyup="filterTable()" 
+                           placeholder="Cari Asset atau Nama Karyawan..." 
+                           class="w-full bg-white border border-slate-200 px-3 py-2 rounded-lg text-[10px] font-semibold outline-none focus:border-indigo-400 transition">
+                    <svg class="w-3.5 h-3.5 absolute right-3 top-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                 </div>
             </div>
             
-            <div class="max-h-80 overflow-y-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-50 text-[9px] font-black text-gray-400 uppercase border-b border-gray-100">
+            <div class="max-h-[320px] overflow-y-auto custom-scroll">
+                <table id="mainTable" class="w-full text-left">
+                    <thead class="bg-white text-[8px] font-black text-slate-400 uppercase border-b border-slate-100">
                         <tr>
-                            <th class="px-6 py-3">ID Asset / Unit</th>
-                            <th class="px-6 py-3 text-right">Waktu Pinjam</th>
+                            <th class="px-5 py-3 tracking-tighter">ID Unit / Karyawan</th>
+                            <th class="px-5 py-3 text-right tracking-tighter">Waktu Pinjam</th>
                         </tr>
                     </thead>
-                    <tbody id="dataTableBody" class="divide-y divide-gray-50">
+                    <tbody id="dataTableBody" class="divide-y divide-slate-50">
                         <tr>
-                            <td colspan="2" class="px-6 py-10 text-center text-gray-400 text-xs font-medium italic">
-                                Menghubungkan ke Sheets...
+                            <td colspan="2" class="px-5 py-8 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                                Memuat Data...
                             </td>
                         </tr>
                     </tbody>
@@ -139,83 +145,82 @@
             </div>
         </div>
 
+        <footer class="pt-4 pb-2 text-center space-y-3">
+            <div class="flex items-center justify-center space-x-3">
+                <span class="text-[10px] font-black text-slate-900 tracking-tighter italic">Muly@.ID</span>
+                <span class="text-slate-300">|</span>
+                <a href="https://wa.me/62895340174853?text=Halo%20Mulyadi,%20saya%20butuh%20bantuan%20mengenai%20Monitoring%20Asset." 
+                   target="_blank" 
+                   class="flex items-center text-[10px] font-bold text-indigo-600 hover:text-indigo-700 transition">
+                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    Contact Us
+                </a>
+            </div>
+            <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">&copy; 2026 Logistics Ops System</p>
+        </footer>
+
     </div>
 
     <script>
-        /**
-         * PENTING: Ganti URL ini dengan URL Web App Deployment terbaru Anda
-         */
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxERurz5XLHHI630eGb7ixMkulJ3lFMk0kOxRNlBTJu2FHBmGqmFMlljmo-0scqq88B/exec";
         
         let currentMode = "PINJAM";
         let html5QrCode = null;
 
-        /**
-         * 📷 LOGIKA KAMERA DENGAN AUTO FOCUS OPTIMIZATION
+        /** * FITUR SEARCH: Filter baris tabel secara instan
          */
+        function filterTable() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById("mainTable");
+            const tr = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < tr.length; i++) { // Lewati header
+                const td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    const textValue = td.textContent || td.innerText;
+                    if (textValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
         async function startCamera() {
             const container = document.getElementById('cameraContainer');
             const form = document.getElementById('formSection');
-            
             container.classList.remove('hidden');
-            form.classList.add('opacity-20', 'pointer-events-none');
+            form.classList.add('opacity-10', 'pointer-events-none');
             
-            if (html5QrCode) {
-                try { await html5QrCode.clear(); } catch(e) {}
-            }
+            if (html5QrCode) { try { await html5QrCode.clear(); } catch(e) {} }
 
             html5QrCode = new Html5Qrcode("reader");
-            
-            // Konfigurasi Constraints Tingkat Lanjut untuk Fokus & Ketajaman
             const config = { 
-                fps: 25, 
-                qrbox: { width: 250, height: 250 },
-                aspectRatio: 1.0,
-                videoConstraints: {
-                    facingMode: "environment",
-                    // Meminta resolusi tinggi agar sensor fokus bekerja lebih baik
-                    width: { min: 640, ideal: 1280, max: 1920 },
-                    height: { min: 640, ideal: 720, max: 1080 },
-                    // Mencoba memaksa mode fokus berkelanjutan
-                    focusMode: "continuous",
-                    whiteBalance: "continuous"
+                fps: 25, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0,
+                videoConstraints: { 
+                    facingMode: "environment", 
+                    width: { ideal: 1280 }, 
+                    focusMode: "continuous" 
                 }
             };
 
             try {
-                await html5QrCode.start(
-                    { facingMode: "environment" }, 
-                    config, 
-                    (decodedText) => {
-                        document.getElementById('assetIdInput').value = decodedText.toUpperCase().trim();
-                        if (navigator.vibrate) navigator.vibrate(70);
-                        stopCamera();
-                    }
-                ).then(() => {
-                    // SETELAH KAMERA AKTIF: Paksa Hardware untuk Fokus (Jika didukung browser)
-                    applyAutoFocus();
-                });
-            } catch (err) {
-                console.error(err);
-                alert("Gagal akses kamera. Pastikan menggunakan HTTPS dan memberi izin kamera.");
-                stopCamera();
-            }
+                await html5QrCode.start({ facingMode: "environment" }, config, (txt) => {
+                    document.getElementById('assetIdInput').value = txt.toUpperCase().trim();
+                    if (navigator.vibrate) navigator.vibrate(70);
+                    stopCamera();
+                }).then(() => { applyAutoFocus(); });
+            } catch (err) { stopCamera(); }
         }
 
-        /**
-         * 🛠️ Fungsi Tambahan untuk Memaksa Fokus ke Hardware
-         */
         function applyAutoFocus() {
-            const videoTrack = document.querySelector("#reader video");
-            if (videoTrack && videoTrack.srcObject) {
-                const track = videoTrack.srcObject.getVideoTracks()[0];
-                const capabilities = track.getCapabilities ? track.getCapabilities() : {};
-                
-                // Jika hardware mendukung perintah fokus via JS
-                if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
-                    track.applyConstraints({
-                        advanced: [{ focusMode: 'continuous' }]
-                    }).catch(e => console.log("Focus constraint failed", e));
+            const video = document.querySelector("#reader video");
+            if (video && video.srcObject) {
+                const track = video.srcObject.getVideoTracks()[0];
+                if (track.getCapabilities && track.getCapabilities().focusMode?.includes('continuous')) {
+                    track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(e => {});
                 }
             }
         }
@@ -224,115 +229,86 @@
             if (html5QrCode) {
                 html5QrCode.stop().then(() => {
                     document.getElementById('cameraContainer').classList.add('hidden');
-                    document.getElementById('formSection').classList.remove('opacity-20', 'pointer-events-none');
+                    document.getElementById('formSection').classList.remove('opacity-10', 'pointer-events-none');
                 }).catch(() => {
                     document.getElementById('cameraContainer').classList.add('hidden');
-                    document.getElementById('formSection').classList.remove('opacity-20', 'pointer-events-none');
+                    document.getElementById('formSection').classList.remove('opacity-10', 'pointer-events-none');
                 });
             }
         }
 
-        /**
-         * 💾 KIRIM DATA
-         */
         async function submitData() {
             const assetId = document.getElementById('assetIdInput').value;
             const btn = document.getElementById('submitBtn');
-
-            if (!assetId) {
-                alert("Scan unit dulu!");
-                return;
-            }
+            if (!assetId) return alert("Pilih ID Unit!");
 
             btn.disabled = true;
-            btn.innerHTML = `<span>MENYIMPAN...</span>`;
+            btn.innerText = "SINKRONISASI...";
 
             try {
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    cache: 'no-cache',
-                    body: JSON.stringify({
-                        assetId: assetId,
-                        statusAksi: currentMode
-                    })
+                    body: JSON.stringify({ assetId: assetId, statusAksi: currentMode })
                 });
-
                 document.getElementById('assetIdInput').value = "";
-                if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
-                
-                // Jeda 2 detik agar Sheets selesai memproses sebelum tabel ditarik
-                setTimeout(syncData, 2000);
-
-            } catch (err) {
-                alert("Koneksi gagal.");
-            } finally {
+                if (navigator.vibrate) navigator.vibrate([50, 50]);
+                setTimeout(syncData, 1800);
+            } catch (err) { alert("Gagal koneksi."); }
+            finally {
                 btn.disabled = false;
-                btn.innerText = "SIMPAN DATA KE DRIVE";
+                btn.innerText = "SIMPAN LOG TRANSAKSI";
             }
         }
 
-        /**
-         * 📊 UPDATE TABEL
-         */
         async function syncData() {
             const tbody = document.getElementById('dataTableBody');
             const badge = document.getElementById('outBadge');
-            
             try {
                 const response = await fetch(SCRIPT_URL + "?action=getdata");
                 const res = await response.json();
-                
                 badge.innerText = `${res.stats.out} UNIT OUT`;
 
                 if (!res.listDipinjam || res.listDipinjam.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="2" class="px-6 py-12 text-center text-gray-400 text-[10px] font-bold uppercase italic">
-                                Semua cutter berada di rak
-                            </td>
-                        </tr>
-                    `;
+                    tbody.innerHTML = `<tr><td colspan="2" class="px-5 py-10 text-center text-slate-400 text-[9px] font-black uppercase tracking-widest italic">Inventory Safe / Rak Terisi</td></tr>`;
                     return;
                 }
 
                 tbody.innerHTML = res.listDipinjam.map(item => `
-                    <tr class="hover:bg-blue-50 transition duration-150">
-                        <td class="px-6 py-4">
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="px-5 py-3">
                             <div class="flex flex-col">
-                                <span class="text-sm font-black text-gray-900 tracking-tight">${item.id}</span>
-                                <span class="text-[9px] font-bold text-gray-400 uppercase">PIC: ${item.user || 'SYSTEM'}</span>
+                                <span class="text-[11px] font-black text-slate-900 tracking-tight">${item.id}</span>
+                                <span class="text-[8px] font-bold text-indigo-500 uppercase tracking-tighter">${item.user || 'SYSTEM'}</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-right">
+                        <td class="px-5 py-3 text-right">
                             <div class="flex flex-col">
-                                <span class="text-xs font-black text-gray-700">${item.waktu.split(' ')[1]}</span>
-                                <span class="text-[9px] font-bold text-gray-400">${item.waktu.split(' ')[0]}</span>
+                                <span class="text-[10px] font-black text-slate-700">${item.waktu.split(' ')[1]}</span>
+                                <span class="text-[8px] font-bold text-slate-400">${item.waktu.split(' ')[0]}</span>
                             </div>
                         </td>
                     </tr>
                 `).join('');
-            } catch (err) {
-                console.log("Sync error");
-            }
+                filterTable(); // Terapkan filter jika ada teks di kolom search
+            } catch (err) { }
         }
 
         function setMode(mode) {
             currentMode = mode;
             const btnP = document.getElementById('modePinjam');
             const btnK = document.getElementById('modeKembali');
-
             if (mode === 'PINJAM') {
-                btnP.className = "flex-1 py-3 text-xs font-black rounded-xl transition-all tab-active uppercase";
-                btnK.className = "flex-1 py-3 text-xs font-black rounded-xl transition-all tab-inactive uppercase";
+                btnP.className = "flex-1 py-2 text-[10px] font-black rounded-lg transition-all tab-active uppercase tracking-widest";
+                btnK.className = "flex-1 py-2 text-[10px] font-black rounded-lg transition-all tab-inactive uppercase tracking-widest";
             } else {
-                btnK.className = "flex-1 py-3 text-xs font-black rounded-xl transition-all bg-green-600 text-white shadow-lg uppercase";
-                btnP.className = "flex-1 py-3 text-xs font-black rounded-xl transition-all tab-inactive uppercase";
+                btnK.className = "flex-1 py-2 text-[10px] font-black rounded-lg transition-all bg-indigo-600 text-white shadow-sm uppercase tracking-widest";
+                btnP.className = "flex-1 py-2 text-[10px] font-black rounded-lg transition-all tab-inactive uppercase tracking-widest";
             }
         }
 
         window.onload = syncData;
-        setInterval(syncData, 15000);
+        setInterval(syncData, 20000); // Sinkronisasi otomatis setiap 20 detik
     </script>
 </body>
 </html>
