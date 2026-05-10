@@ -3,98 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cutter Monitoring | Muly@.ID</title>
+    <title>Cutter Tracker Premium | Muly@.ID</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #0f172a;
+            background-color: #0a0a0a; /* Hitam Obsidian */
+            color: #d4af37; /* Gold Default */
             -webkit-tap-highlight-color: transparent;
         }
-        .app-card {
-            background: white;
-            border-radius: 1rem;
-            border: 1px solid #f1f5f9;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+        .luxury-card {
+            background: #141414;
+            border: 1px solid #262626;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37 0%, #f2d479 100%);
+            color: #000;
         }
         #reader {
             width: 100%;
-            border-radius: 0.75rem;
+            border-radius: 1rem;
             overflow: hidden;
-            background-color: #000;
+            border: 2px solid #d4af37;
         }
-        /* Styling khusus video scanner */
         #reader__dashboard_section_csr button { display: none !important; }
-        #reader__status_span { display: none !important; }
         #reader video { object-fit: cover !important; }
         
         .tab-active {
-            background-color: #1e293b;
-            color: white;
+            background-color: #d4af37;
+            color: #000;
         }
         .tab-inactive {
-            color: #64748b;
+            color: #737373;
+            border: 1px solid #262626;
         }
-        .status-pulse {
-            animation: pulse-green 2s infinite;
+        .gold-text {
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        @keyframes pulse-green {
-            0% { box-shadow: 0 0 0 0px rgba(34, 197, 94, 0.4); }
-            100% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
-        }
-        /* Custom Scrollbar for Table */
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar { width: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
     </style>
 </head>
-<body class="antialiased pb-6">
+<body class="antialiased">
 
-    <div class="max-w-md mx-auto p-4 space-y-4">
+    <div class="max-w-md mx-auto p-5 space-y-6">
         
-        <header class="flex justify-between items-center py-2">
-            <div>
-                <h1 class="text-xl font-black text-slate-900 tracking-tighter leading-none">Muly@.ID</h1>
-                <p class="text-[9px] font-extrabold text-indigo-600 uppercase tracking-[0.2em] mt-1">Asset Monitoring</p>
-            </div>
-            <div class="flex items-center space-x-2 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
-                <div class="w-1.5 h-1.5 bg-green-500 rounded-full status-pulse"></div>
-                <span id="systemStatus" class="text-[8px] font-black text-slate-700 uppercase tracking-tight">Connected</span>
+        <header class="flex justify-end items-center py-2">
+            <div class="flex items-center space-x-2 bg-neutral-900 px-3 py-1.5 rounded-full border border-neutral-800">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-[9px] font-black text-white uppercase tracking-tighter">System Secured</span>
             </div>
         </header>
 
-        <div id="cameraContainer" class="hidden animate-in fade-in zoom-in duration-200">
-            <div class="app-card p-2 border-2 border-indigo-500">
+        <div id="cameraContainer" class="hidden">
+            <div class="luxury-card p-3 border-2 border-[#d4af37]">
                 <div id="reader"></div>
-                <button onclick="stopCamera()" class="w-full mt-2 py-2.5 bg-red-50 text-red-600 font-bold text-[10px] rounded-lg uppercase tracking-widest">
-                    Batalkan Scan
+                <button onclick="stopCamera()" class="w-full mt-3 py-3 text-red-500 font-bold text-[10px] uppercase tracking-widest">
+                    Batalkan Pemindaian
                 </button>
             </div>
         </div>
 
-        <div id="formSection" class="app-card p-5 space-y-5">
-            
-            <div class="flex bg-slate-100 p-1 rounded-xl">
-                <button id="modePinjam" onclick="setMode('PINJAM')" class="flex-1 py-2 text-[10px] font-black rounded-lg transition-all tab-active uppercase tracking-widest">
-                    Pinjam
-                </button>
-                <button id="modeKembali" onclick="setMode('KEMBALI')" class="flex-1 py-2 text-[10px] font-black rounded-lg transition-all tab-inactive uppercase tracking-widest">
-                    Kembali
-                </button>
+        <div id="formSection" class="luxury-card p-6 space-y-6">
+            <div class="flex space-x-2">
+                <button id="modePinjam" onclick="setMode('PINJAM')" class="flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-active uppercase">PINJAM</button>
+                <button id="modeKembali" onclick="setMode('KEMBALI')" class="flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase">KEMBALI</button>
             </div>
 
-            <div class="space-y-3">
-                <div class="space-y-1.5">
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">ID Unit Cutter</label>
+            <div class="space-y-4">
+                <div class="space-y-2">
+                    <label class="text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] ml-1">Asset Identity</label>
                     <div class="relative flex items-center">
                         <input type="text" id="assetIdInput" readonly 
-                               class="w-full bg-slate-50 border border-slate-200 p-3 pr-12 rounded-xl font-bold text-slate-800 text-[12px] focus:ring-1 focus:ring-indigo-500 outline-none" 
-                               placeholder="Tap to scan QR Code...">
-                        <button onclick="startCamera()" class="absolute right-1.5 p-2 bg-indigo-600 text-white rounded-lg shadow-sm active:scale-90 transition">
+                               class="w-full bg-neutral-900 border border-neutral-800 p-4 pr-14 rounded-2xl font-bold text-white text-xs outline-none focus:border-[#d4af37]" 
+                               placeholder="Scan QR Unit...">
+                        <button onclick="startCamera()" class="absolute right-2 p-2.5 btn-gold rounded-xl shadow-lg active:scale-90 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z" />
                             </svg>
@@ -103,194 +93,151 @@
                 </div>
 
                 <button id="submitBtn" onclick="submitData()" 
-                        class="w-full py-3.5 bg-slate-900 text-white font-black text-[11px] rounded-xl tracking-widest uppercase hover:bg-slate-800 transition active:scale-[0.98]">
-                    Simpan Log Transaksi
+                        class="w-full py-4 btn-gold font-black text-xs rounded-2xl tracking-[0.1em] uppercase shadow-xl shadow-yellow-900/10 active:scale-95 transition">
+                    Simpan ke Cloud Database
                 </button>
             </div>
         </div>
 
-        <div class="app-card overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-50 bg-slate-50/50 flex flex-col space-y-3">
+        <div class="luxury-card overflow-hidden">
+            <div class="px-6 py-5 border-b border-neutral-800 bg-neutral-900/50 space-y-4">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Live Monitoring</h3>
-                    <span id="outBadge" class="bg-indigo-50 text-indigo-600 text-[9px] font-black px-2.5 py-1 rounded-md border border-indigo-100">0 UNIT OUT</span>
+                    <h3 class="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Live Monitoring</h3>
+                    <span id="outBadge" class="bg-yellow-950/30 text-[#d4af37] text-[9px] font-black px-3 py-1 rounded-md border border-yellow-900/50">0 UNIT OUT</span>
                 </div>
-                
                 <div class="relative">
                     <input type="text" id="searchInput" onkeyup="filterTable()" 
-                           placeholder="Cari Asset atau Nama Karyawan..." 
-                           class="w-full bg-white border border-slate-200 px-3 py-2 rounded-lg text-[10px] font-semibold outline-none focus:border-indigo-400 transition">
-                    <svg class="w-3.5 h-3.5 absolute right-3 top-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+                           placeholder="Cari Asset atau Karyawan..." 
+                           class="w-full bg-black border border-neutral-800 px-4 py-3 rounded-xl text-[10px] font-semibold text-white outline-none focus:border-[#d4af37]">
                 </div>
             </div>
             
-            <div class="max-h-[320px] overflow-y-auto custom-scroll">
+            <div class="max-h-[350px] overflow-y-auto custom-scroll">
                 <table id="mainTable" class="w-full text-left">
-                    <thead class="bg-white text-[8px] font-black text-slate-400 uppercase border-b border-slate-100">
+                    <thead class="bg-neutral-900 text-[8px] font-black text-neutral-500 uppercase">
                         <tr>
-                            <th class="px-5 py-3 tracking-tighter">ID Unit / Karyawan</th>
-                            <th class="px-5 py-3 text-right tracking-tighter">Waktu Pinjam</th>
+                            <th class="px-6 py-3">ID Asset / PIC</th>
+                            <th class="px-6 py-3 text-right">Durasi Pinjam</th>
                         </tr>
                     </thead>
-                    <tbody id="dataTableBody" class="divide-y divide-slate-50">
-                        <tr>
-                            <td colspan="2" class="px-5 py-8 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-                                Memuat Data...
-                            </td>
-                        </tr>
-                    </tbody>
+                    <tbody id="dataTableBody" class="divide-y divide-neutral-800">
+                        </tbody>
                 </table>
             </div>
         </div>
 
-        <footer class="pt-4 pb-2 text-center space-y-3">
-            <div class="flex items-center justify-center space-x-3">
-                <span class="text-[10px] font-black text-slate-900 tracking-tighter italic">Muly@.ID</span>
-                <span class="text-slate-300">|</span>
-                <a href="https://wa.me/62895340174853?text=Halo%20Mulyadi,%20saya%20butuh%20bantuan%20mengenai%20Monitoring%20Asset." 
-                   target="_blank" 
-                   class="flex items-center text-[10px] font-bold text-indigo-600 hover:text-indigo-700 transition">
-                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                    Contact Us
+        <footer class="mt-12 mb-8 px-2">
+            <div class="border-t border-neutral-800 pt-8 flex flex-col items-center space-y-6">
+                <div class="text-center">
+                    <span class="gold-text text-xl font-black tracking-tighter italic">Muly@.ID</span>
+                    <p class="text-[8px] font-bold text-neutral-500 uppercase tracking-[0.3em] mt-1">Enterprise Asset Management</p>
+                </div>
+                
+                <a href="https://wa.me/62895340174853" target="_blank" 
+                   class="flex items-center space-x-3 bg-neutral-900 border border-neutral-800 px-6 py-3 rounded-2xl hover:bg-neutral-800 transition shadow-lg">
+                    <div class="bg-green-600 p-1.5 rounded-lg">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    </div>
+                    <span class="text-[11px] font-black text-white">HUBUNGI DEVELOPER</span>
                 </a>
-            </div>
-            <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">&copy; 2026 Logistics Ops System</p>
-        </footer>
 
+                <div class="flex space-x-4 opacity-30">
+                    <div class="w-8 h-1 bg-white rounded-full"></div>
+                    <div class="w-8 h-1 bg-[#d4af37] rounded-full"></div>
+                    <div class="w-8 h-1 bg-white rounded-full"></div>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxERurz5XLHHI630eGb7ixMkulJ3lFMk0kOxRNlBTJu2FHBmGqmFMlljmo-0scqq88B/exec";
-        
         let currentMode = "PINJAM";
         let html5QrCode = null;
 
-        /** * FITUR SEARCH: Filter baris tabel secara instan
-         */
+        // FITUR SEARCH
         function filterTable() {
             const input = document.getElementById("searchInput");
             const filter = input.value.toUpperCase();
-            const table = document.getElementById("mainTable");
-            const tr = table.getElementsByTagName("tr");
-
-            for (let i = 1; i < tr.length; i++) { // Lewati header
+            const tr = document.getElementById("mainTable").getElementsByTagName("tr");
+            for (let i = 1; i < tr.length; i++) {
                 const td = tr[i].getElementsByTagName("td")[0];
                 if (td) {
-                    const textValue = td.textContent || td.innerText;
-                    if (textValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
+                    tr[i].style.display = (td.textContent || td.innerText).toUpperCase().indexOf(filter) > -1 ? "" : "none";
                 }
             }
         }
 
         async function startCamera() {
             const container = document.getElementById('cameraContainer');
-            const form = document.getElementById('formSection');
             container.classList.remove('hidden');
-            form.classList.add('opacity-10', 'pointer-events-none');
-            
             if (html5QrCode) { try { await html5QrCode.clear(); } catch(e) {} }
-
             html5QrCode = new Html5Qrcode("reader");
-            const config = { 
-                fps: 25, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0,
-                videoConstraints: { 
-                    facingMode: "environment", 
-                    width: { ideal: 1280 }, 
-                    focusMode: "continuous" 
-                }
-            };
-
             try {
-                await html5QrCode.start({ facingMode: "environment" }, config, (txt) => {
+                await html5QrCode.start({ facingMode: "environment" }, { fps: 25, qrbox: 250 }, (txt) => {
                     document.getElementById('assetIdInput').value = txt.toUpperCase().trim();
                     if (navigator.vibrate) navigator.vibrate(70);
                     stopCamera();
-                }).then(() => { applyAutoFocus(); });
+                });
             } catch (err) { stopCamera(); }
-        }
-
-        function applyAutoFocus() {
-            const video = document.querySelector("#reader video");
-            if (video && video.srcObject) {
-                const track = video.srcObject.getVideoTracks()[0];
-                if (track.getCapabilities && track.getCapabilities().focusMode?.includes('continuous')) {
-                    track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(e => {});
-                }
-            }
         }
 
         function stopCamera() {
             if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    document.getElementById('cameraContainer').classList.add('hidden');
-                    document.getElementById('formSection').classList.remove('opacity-10', 'pointer-events-none');
-                }).catch(() => {
-                    document.getElementById('cameraContainer').classList.add('hidden');
-                    document.getElementById('formSection').classList.remove('opacity-10', 'pointer-events-none');
-                });
+                html5QrCode.stop().then(() => { document.getElementById('cameraContainer').classList.add('hidden'); });
             }
         }
 
         async function submitData() {
             const assetId = document.getElementById('assetIdInput').value;
             const btn = document.getElementById('submitBtn');
-            if (!assetId) return alert("Pilih ID Unit!");
-
+            if (!assetId) return alert("Scan Asset Dulu!");
             btn.disabled = true;
-            btn.innerText = "SINKRONISASI...";
-
+            btn.innerText = "SINKRONISASI CLOUD...";
             try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({ assetId: assetId, statusAksi: currentMode })
-                });
+                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ assetId: assetId, statusAksi: currentMode }) });
                 document.getElementById('assetIdInput').value = "";
-                if (navigator.vibrate) navigator.vibrate([50, 50]);
-                setTimeout(syncData, 1800);
-            } catch (err) { alert("Gagal koneksi."); }
-            finally {
-                btn.disabled = false;
-                btn.innerText = "SIMPAN LOG TRANSAKSI";
-            }
+                setTimeout(syncData, 1500);
+            } catch (err) { alert("Gagal."); }
+            finally { btn.disabled = false; btn.innerText = "SIMPAN KE CLOUD DATABASE"; }
         }
 
         async function syncData() {
             const tbody = document.getElementById('dataTableBody');
-            const badge = document.getElementById('outBadge');
             try {
                 const response = await fetch(SCRIPT_URL + "?action=getdata");
                 const res = await response.json();
-                badge.innerText = `${res.stats.out} UNIT OUT`;
+                document.getElementById('outBadge').innerText = `${res.stats.out} UNIT OUT`;
 
                 if (!res.listDipinjam || res.listDipinjam.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="2" class="px-5 py-10 text-center text-slate-400 text-[9px] font-black uppercase tracking-widest italic">Inventory Safe / Rak Terisi</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="2" class="px-6 py-12 text-center text-neutral-600 text-[10px] font-black uppercase tracking-widest italic">Inventory Safe / Rak Terisi</td></tr>`;
                     return;
                 }
 
-                tbody.innerHTML = res.listDipinjam.map(item => `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="px-5 py-3">
+                // LOGIKA PENGURUTAN: TERLAMA DI ATAS
+                const sortedData = res.listDipinjam.sort((a, b) => {
+                    const dateA = new Date(a.waktu.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
+                    const dateB = new Date(b.waktu.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
+                    return dateA - dateB;
+                });
+
+                tbody.innerHTML = sortedData.map(item => `
+                    <tr class="hover:bg-neutral-900 transition border-neutral-800">
+                        <td class="px-6 py-4">
                             <div class="flex flex-col">
-                                <span class="text-[11px] font-black text-slate-900 tracking-tight">${item.id}</span>
-                                <span class="text-[8px] font-bold text-indigo-500 uppercase tracking-tighter">${item.user || 'SYSTEM'}</span>
+                                <span class="text-[11px] font-black text-white tracking-tight">${item.id}</span>
+                                <span class="text-[8px] font-bold text-neutral-500 uppercase tracking-tighter">${item.user || 'PIC_FIELD'}</span>
                             </div>
                         </td>
-                        <td class="px-5 py-3 text-right">
+                        <td class="px-6 py-4 text-right">
                             <div class="flex flex-col">
-                                <span class="text-[10px] font-black text-slate-700">${item.waktu.split(' ')[1]}</span>
-                                <span class="text-[8px] font-bold text-slate-400">${item.waktu.split(' ')[0]}</span>
+                                <span class="text-[10px] font-black text-[#d4af37]">${item.waktu.split(' ')[1]}</span>
+                                <span class="text-[8px] font-bold text-neutral-600">${item.waktu.split(' ')[0]}</span>
                             </div>
                         </td>
                     </tr>
                 `).join('');
-                filterTable(); // Terapkan filter jika ada teks di kolom search
+                filterTable();
             } catch (err) { }
         }
 
@@ -299,16 +246,16 @@
             const btnP = document.getElementById('modePinjam');
             const btnK = document.getElementById('modeKembali');
             if (mode === 'PINJAM') {
-                btnP.className = "flex-1 py-2 text-[10px] font-black rounded-lg transition-all tab-active uppercase tracking-widest";
-                btnK.className = "flex-1 py-2 text-[10px] font-black rounded-lg transition-all tab-inactive uppercase tracking-widest";
+                btnP.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-active uppercase";
+                btnK.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase";
             } else {
-                btnK.className = "flex-1 py-2 text-[10px] font-black rounded-lg transition-all bg-indigo-600 text-white shadow-sm uppercase tracking-widest";
-                btnP.className = "flex-1 py-2 text-[10px] font-black rounded-lg transition-all tab-inactive uppercase tracking-widest";
+                btnK.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all bg-green-600 text-white uppercase";
+                btnP.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase";
             }
         }
 
         window.onload = syncData;
-        setInterval(syncData, 20000); // Sinkronisasi otomatis setiap 20 detik
+        setInterval(syncData, 30000);
     </script>
 </body>
 </html>
