@@ -44,6 +44,15 @@
         }
         .gold-solid { color: #d4af37; }
         
+        /* Notifikasi Animasi */
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .notif-alert {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
         .custom-scroll::-webkit-scrollbar { width: 3px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
     </style>
@@ -62,9 +71,11 @@
         <div id="cameraContainer" class="hidden">
             <div class="luxury-card p-3 border-2 border-[#d4af37]">
                 <div id="reader"></div>
-                <button onclick="stopCamera()" class="w-full mt-3 py-3 text-red-500 font-bold text-[10px] uppercase tracking-widest">
-                    Batalkan Pemindaian
-                </button>
+                <div class="flex space-x-2 mt-3">
+                    <button onclick="stopCamera()" class="flex-1 py-3 bg-neutral-900 text-red-500 font-bold text-[10px] uppercase tracking-widest rounded-xl">
+                        Batalkan
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -102,10 +113,15 @@
                     <h3 class="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Live Monitoring</h3>
                     <span id="outBadge" class="bg-yellow-950/30 text-[#d4af37] text-[9px] font-black px-3 py-1 rounded-md border border-yellow-900/50">0 UNIT OUT</span>
                 </div>
-                <div class="relative">
+                
+                <div class="relative space-y-2">
                     <input type="text" id="searchInput" onkeyup="filterTable()" 
-                           placeholder="Cari Asset atau Karyawan..." 
+                           placeholder="Cari Asset (pisahkan dengan koma)..." 
                            class="w-full bg-black border border-neutral-800 px-4 py-3 rounded-xl text-[10px] font-semibold text-white outline-none focus:border-[#d4af37]">
+                    
+                    <div id="notFoundAlert" class="hidden notif-alert bg-red-950/20 border border-red-900 p-2 rounded-lg">
+                        <p class="text-[8px] font-bold text-red-500 uppercase tracking-tighter" id="notFoundText"></p>
+                    </div>
                 </div>
             </div>
             
@@ -157,68 +173,151 @@
         let currentMode = "PINJAM";
         let html5QrCode = null;
 
+        // --- FUNGSI MULTIPLE SEARCH & NOTIFIKASI ---
         function filterTable() {
             const input = document.getElementById("searchInput");
-            const filter = input.value.toUpperCase();
+            const filterValue = input.value.toUpperCase().trim();
+            const alertBox = document.getElementById("notFoundAlert");
+            const alertText = document.getElementById("notFoundText");
+            
+            // Pisahkan kata kunci dengan koma
+            const keywords = filterValue.split(',').map(k => k.trim()).filter(k => k !== "");
+            
             const tr = document.getElementById("mainTable").getElementsByTagName("tr");
+            let foundKeywords = new Set();
+            let hasInput = keywords.length > 0;
+
             for (let i = 1; i < tr.length; i++) {
                 const td = tr[i].getElementsByTagName("td")[0];
                 if (td) {
-                    tr[i].style.display = (td.textContent || td.innerText).toUpperCase().indexOf(filter) > -1 ? "" : "none";
+                    const txtValue = td.textContent || td.innerText;
+                    const txtUpper = txtValue.toUpperCase();
+                    
+                    if (!hasInput) {
+                        tr[i].style.display = "";
+                        continue;
+                    }
+
+                    // Cek apakah baris ini mengandung salah satu keyword
+                    let isMatch = false;
+                    keywords.forEach(key => {
+                        if (txtUpper.indexOf(key) > -1) {
+                            isMatch = true;
+                            foundKeywords.add(key);
+                        }
+                    });
+
+                    tr[i].style.display = isMatch ? "" : "none";
                 }
+            }
+
+            // Cek keyword mana yang tidak ditemukan
+            if (hasInput) {
+                const notFound = keywords.filter(key => !foundKeywords.has(key));
+                if (notFound.length > 0) {
+                    alertBox.classList.remove('hidden');
+                    alertText.innerText = "DATA TIDAK DITEMUKAN: " + notFound.join(', ');
+                } else {
+                    alertBox.classList.add('hidden');
+                }
+            } else {
+                alertBox.classList.add('hidden');
             }
         }
 
+        // --- FUNGSI SCANNER OPTIMIZED (HARDWARE JADUL) ---
         async function startCamera() {
             const container = document.getElementById('cameraContainer');
             container.classList.remove('hidden');
+            
             if (html5QrCode) { try { await html5QrCode.clear(); } catch(e) {} }
+            
             html5QrCode = new Html5Qrcode("reader");
+            
+            const config = { 
+                fps: 20, // Menurunkan FPS sedikit agar CPU HP Jadul tidak panas
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0,
+                experimentalFeatures: {
+                    useBarCodeDetectorIfSupported: true // Gunakan akselerasi hardware jika ada
+                }
+            };
+
             try {
-                await html5QrCode.start({ facingMode: "environment" }, { fps: 25, qrbox: 250 }, (txt) => {
-                    document.getElementById('assetIdInput').value = txt.toUpperCase().trim();
-                    if (navigator.vibrate) navigator.vibrate(70);
-                    stopCamera();
-                });
-            } catch (err) { stopCamera(); }
+                // Memaksa fokus lingkungan (Environment Camera)
+                await html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    config, 
+                    (txt) => {
+                        document.getElementById('assetIdInput').value = txt.toUpperCase().trim();
+                        // Haptic Feedback (Getar) jika didukung
+                        if (navigator.vibrate) navigator.vibrate(80);
+                        stopCamera();
+                    }
+                );
+            } catch (err) {
+                console.error("Gagal Kamera:", err);
+                alert("Gagal Akses Kamera. Pastikan Izin Diberikan.");
+                stopCamera();
+            }
         }
 
         function stopCamera() {
             if (html5QrCode) {
-                html5QrCode.stop().then(() => { document.getElementById('cameraContainer').classList.add('hidden'); });
+                html5QrCode.stop().then(() => { 
+                    document.getElementById('cameraContainer').classList.add('hidden'); 
+                }).catch(err => {
+                    document.getElementById('cameraContainer').classList.add('hidden'); 
+                });
             }
         }
 
+        // --- LOGIKA TRANSAKSI ---
         async function submitData() {
             const assetId = document.getElementById('assetIdInput').value;
             const btn = document.getElementById('submitBtn');
             if (!assetId) return alert("Pindai QR Dulu!");
+            
             btn.disabled = true;
             btn.innerText = "SINKRONISASI...";
+            
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ assetId: assetId, statusAksi: currentMode }) });
+                // Menggunakan mode no-cors sesuai kebutuhan sistem Apps Script
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: JSON.stringify({ assetId: assetId, statusAksi: currentMode }) 
+                });
+                
                 document.getElementById('assetIdInput').value = "";
+                // Delay sebentar agar database Apps Script terupdate sebelum fetch ulang
                 setTimeout(syncData, 1500);
-            } catch (err) { alert("Masalah Koneksi Cloud."); }
-            finally { btn.disabled = false; btn.innerText = "SIMPAN KE CLOUD DATABASE"; }
+            } catch (err) { 
+                alert("Masalah Koneksi Cloud."); 
+            } finally { 
+                btn.disabled = false; 
+                btn.innerText = "SIMPAN KE CLOUD DATABASE"; 
+            }
         }
 
+        // --- SYNC DATA & SORTING TERLAMA ---
         async function syncData() {
             const tbody = document.getElementById('dataTableBody');
             try {
                 const response = await fetch(SCRIPT_URL + "?action=getdata");
                 const res = await response.json();
+                
                 document.getElementById('outBadge').innerText = `${res.stats.out} UNIT OUT`;
 
                 if (!res.listDipinjam || res.listDipinjam.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="2" class="px-6 py-12 text-center text-neutral-600 text-[9px] font-black uppercase tracking-widest italic tracking-tighter">Inventory Safe / Rak Terisi</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="2" class="px-6 py-12 text-center text-neutral-600 text-[9px] font-black uppercase tracking-widest italic">Inventory Safe / Rak Terisi</td></tr>`;
                     return;
                 }
 
+                // Sorting: Waktu Terlama (Older) berada paling atas
                 const sortedData = res.listDipinjam.sort((a, b) => {
-                    const dateA = new Date(a.waktu.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
-                    const dateB = new Date(b.waktu.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
-                    return dateA - dateB;
+                    const parseDate = (d) => new Date(d.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
+                    return parseDate(a.waktu) - parseDate(b.waktu);
                 });
 
                 tbody.innerHTML = sortedData.map(item => `
@@ -237,8 +336,12 @@
                         </td>
                     </tr>
                 `).join('');
+                
+                // Pertahankan filter jika sedang mengetik
                 filterTable();
-            } catch (err) { }
+            } catch (err) {
+                console.error("Sync Error:", err);
+            }
         }
 
         function setMode(mode) {
@@ -249,11 +352,13 @@
                 btnP.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-active uppercase";
                 btnK.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase";
             } else {
+                // Mode Kembali menggunakan warna hijau sebagai indikator aman
                 btnK.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all bg-green-600 text-white uppercase shadow-lg shadow-green-900/20";
                 btnP.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase";
             }
         }
 
+        // Jalankan sinkronisasi awal dan interval 30 detik
         window.onload = syncData;
         setInterval(syncData, 30000);
     </script>
