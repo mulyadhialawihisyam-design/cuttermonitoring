@@ -1,899 +1,349 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Muly@-Portal</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:wght@200;300;400;500&display=swap" rel="stylesheet">
-<style>
-/* ══════════════════════════════════════
-   BASE RESET & VARIABLES
-══════════════════════════════════════ */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cutter Tracker Premium | Muly@.ID</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a; 
+            color: #d4af37; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .luxury-card {
+            background: #141414;
+            border: 1px solid #262626;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37 0%, #f2d479 100%);
+            color: #000;
+        }
+        #reader {
+            width: 100%;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 2px solid #d4af37;
+        }
+        #reader__dashboard_section_csr button { display: none !important; }
+        #reader video { object-fit: cover !important; }
+        
+        .tab-active {
+            background-color: #d4af37;
+            color: #000;
+        }
+        .tab-inactive {
+            color: #737373;
+            border: 1px solid #262626;
+        }
+        .gold-solid { color: #d4af37; }
+        
+        @keyframes slideIn {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .notif-alert {
+            animation: slideIn 0.3s ease-out forwards;
+        }
 
-:root{
-  --sb-w:68px;
-  --menu-w:248px;
-  --sidebar-bg:#1a0a2e;
-  --sidebar-border:rgba(167,139,250,0.12);
-  --menu-bg:#10082a;
-  --content-bg:#07050f;
-  --accent-cyan:#38bdf8;
-  --accent-purple:#a78bfa;
-  --accent-indigo:#6366f1;
-  --accent-green:#34d399;
-  --text-hi:rgba(255,255,255,0.93);
-  --text-mid:rgba(255,255,255,0.52);
-  --text-lo:rgba(255,255,255,0.2);
-  --sep:rgba(255,255,255,0.06);
-}
-
-html,body{width:100%;height:100%;overflow:hidden;background:#07050f;font-family:'Exo 2',sans-serif;color:var(--text-hi);user-select:none}
-
-/* ══════════════════════════════════════
-   UI — SHELL
-══════════════════════════════════════ */
-#shell{position:fixed;inset:0;display:flex;z-index:2}
-
-/* ══════════════════════════════════════
-   UI — SIDEBAR
-══════════════════════════════════════ */
-#sidebar{
-  width:var(--sb-w);height:100%;flex-shrink:0;
-  background:linear-gradient(180deg,#1e0b38 0%,#140826 50%,#1a0b34 100%);
-  border-right:1px solid rgba(139,92,246,0.18);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  position:relative;z-index:20;
-  display:none;
-  box-shadow:4px 0 24px rgba(88,28,220,0.18);
-}
-#sidebar.visible{display:flex}
-
-#sidebar::before{
-  content:'';position:absolute;right:0;top:15%;height:70%;width:1px;
-  background:linear-gradient(to bottom,transparent,rgba(139,92,246,0.35) 30%,rgba(139,92,246,0.35) 70%,transparent);
-}
-#sidebar::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:140px;
-  background:radial-gradient(ellipse 80% 100% at 50% 0%,rgba(139,92,246,0.2) 0%,transparent 70%);
-  pointer-events:none;
-}
-
-/* ── home btn in sidebar ── */
-#home-btn{
-  width:46px;height:46px;border-radius:50%;
-  background:radial-gradient(circle at 38% 32%,rgba(167,139,250,0.22) 0%,rgba(20,8,38,0.95) 65%);
-  border:1.5px solid rgba(139,92,246,0.35);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;position:relative;z-index:1;
-  box-shadow:0 4px 20px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.06);
-  transition:box-shadow 250ms ease,border-color 250ms ease,transform 140ms ease,background 250ms ease;
-}
-#home-btn:hover{
-  border-color:rgba(167,139,250,0.6);
-  box-shadow:0 0 18px rgba(139,92,246,0.3),0 4px 20px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.07);
-}
-#home-btn.lit{
-  border-color:rgba(167,139,250,0.8);
-  background:radial-gradient(circle at 38% 32%,rgba(167,139,250,0.35) 0%,rgba(20,8,38,0.88) 65%);
-  box-shadow:0 0 0 2.5px rgba(139,92,246,0.5),0 0 30px rgba(139,92,246,0.45),0 0 65px rgba(139,92,246,0.15),0 4px 20px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.1);
-  animation:pulse-p 2.8s ease-in-out infinite;
-}
-#home-btn.pressed{transform:scale(0.87)!important;animation:none!important;
-  border-color:rgba(167,139,250,0.9);
-  box-shadow:0 0 0 3px rgba(139,92,246,0.55),0 0 40px rgba(139,92,246,0.5),inset 0 1px 0 rgba(255,255,255,0.12);
-}
-#home-icon{width:24px;height:24px;transition:filter 250ms ease}
-#home-btn.lit #home-icon{filter:drop-shadow(0 0 6px rgba(167,139,250,0.9))}
-
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-@keyframes pulse-p{
-  0%,100%{box-shadow:0 0 0 2.5px rgba(139,92,246,0.5),0 0 30px rgba(139,92,246,0.45),0 0 65px rgba(139,92,246,0.15),0 4px 20px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.1)}
-  50%{box-shadow:0 0 0 5px rgba(139,92,246,0.28),0 0 50px rgba(139,92,246,0.55),0 0 100px rgba(139,92,246,0.2),0 4px 20px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.1)}
-}
-
-/* ══════════════════════════════════════
-   UI — MENU PANEL
-══════════════════════════════════════ */
-#menu-panel{
-  width:var(--menu-w);height:100%;flex-shrink:0;
-  background:linear-gradient(180deg,#120830 0%,#0e0625 60%,#110830 100%);
-  border-right:1px solid rgba(139,92,246,0.1);
-  display:flex;flex-direction:column;
-  display:none;
-  position:relative;z-index:19;
-  box-shadow:4px 0 20px rgba(0,0,0,0.35);
-}
-#menu-panel.visible{display:flex}
-
-.menu-header{
-  padding:26px 18px 14px;border-bottom:1px solid var(--sep);flex-shrink:0;
-}
-.menu-header h2{
-  font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;
-  letter-spacing:.45em;text-transform:uppercase;color:rgba(139,92,246,0.45);
-}
-.menu-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:6px 0 80px}
-.menu-scroll::-webkit-scrollbar{width:2px}
-.menu-scroll::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.2);border-radius:2px}
-
-/* category group */
-.cat-group{margin-bottom:2px}
-.cat-header{
-  display:flex;align-items:center;gap:9px;
-  padding:11px 18px 9px;cursor:pointer;
-  transition:background 180ms ease;
-}
-.cat-header:hover{background:rgba(139,92,246,0.06)}
-.cat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;transition:box-shadow 300ms ease}
-.cat-header.open .cat-dot,.cat-header:hover .cat-dot{box-shadow:0 0 8px currentColor}
-.cat-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;flex:1;transition:color 180ms ease}
-.cat-arrow{width:13px;height:13px;opacity:.35;transition:transform 280ms cubic-bezier(.34,1.56,.64,1),opacity 200ms ease;flex-shrink:0}
-.cat-header.open .cat-arrow{transform:rotate(90deg);opacity:.65}
-
-/* per-cat colors */
-.cat-group[data-cat="ANALYS"] .cat-dot{background:var(--accent-cyan);color:var(--accent-cyan)}
-.cat-group[data-cat="ANALYS"] .cat-title{color:var(--accent-cyan)}
-.cat-group[data-cat="MONITORING"] .cat-dot{background:var(--accent-green);color:var(--accent-green)}
-.cat-group[data-cat="MONITORING"] .cat-title{color:var(--accent-green)}
-.cat-group[data-cat="QC"] .cat-dot{background:rgba(167,139,250,0.45);color:rgba(167,139,250,0.45)}
-.cat-group[data-cat="QC"] .cat-title{color:rgba(167,139,250,0.45)}
-
-/* sub items */
-.cat-items{overflow:hidden;max-height:0;transition:max-height 340ms cubic-bezier(.22,1,.36,1)}
-.cat-items.open{max-height:300px}
-.menu-item{
-  display:flex;align-items:center;gap:11px;
-  padding:9px 18px 9px 34px;cursor:pointer;
-  transition:background 160ms ease,border-left-color 200ms ease;
-  border-left:2px solid transparent;
-  position:relative;
-}
-.menu-item:hover{background:rgba(139,92,246,0.07)}
-.menu-item.disabled{opacity:.32;cursor:default;pointer-events:none}
-
-/* ── Active state ── */
-.menu-item.active{
-  background:rgba(56,189,248,0.07);
-  border-left-color:var(--accent-cyan);
-}
-.menu-item.active .item-label{color:var(--text-hi)}
-.menu-item.active .item-icon{opacity:1;filter:drop-shadow(0 0 5px var(--accent-cyan))}
-.menu-item.active .item-arr{opacity:1;transform:translateX(2px)}
-.cat-group[data-cat="MONITORING"] .menu-item.active{background:rgba(52,211,153,0.07);border-left-color:var(--accent-green)}
-.cat-group[data-cat="MONITORING"] .menu-item.active .item-icon{filter:drop-shadow(0 0 5px var(--accent-green))}
-.cat-group[data-cat="QC"] .menu-item.active{background:rgba(167,139,250,0.07);border-left-color:var(--accent-purple)}
-.cat-group[data-cat="QC"] .menu-item.active .item-icon{filter:drop-shadow(0 0 5px var(--accent-purple))}
-
-.item-icon{width:17px;height:17px;flex-shrink:0;opacity:.72;transition:opacity 160ms ease,filter 200ms ease}
-.cat-group[data-cat="ANALYS"] .item-icon{color:var(--accent-cyan)}
-.cat-group[data-cat="MONITORING"] .item-icon{color:var(--accent-green)}
-.cat-group[data-cat="QC"] .item-icon{color:var(--accent-purple)}
-.item-label{font-family:'Exo 2',sans-serif;font-size:11.5px;font-weight:400;color:var(--text-mid);letter-spacing:.03em;flex:1;line-height:1.3;transition:color 160ms ease}
-.menu-item:hover .item-label{color:var(--text-hi)}
-.item-arr{width:11px;height:11px;opacity:0;color:rgba(139,92,246,0.5);transition:opacity 160ms ease,transform 160ms ease;flex-shrink:0}
-.menu-item:hover .item-arr{opacity:1;transform:translateX(2px)}
-.soon-pill{font-family:'Rajdhani',sans-serif;font-size:8px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);color:rgba(139,92,246,0.5);padding:2px 7px;border-radius:10px;white-space:nowrap}
-
-/* ══════════════════════════════════════
-   UI — CONTENT AREA
-══════════════════════════════════════ */
-#content{flex:1;height:100%;position:relative;overflow:hidden;background:#07050f;display:flex;flex-direction:column;}
-
-/* bg gradient that fades in when open */
-#content-grad{
-  position:absolute;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse 65% 55% at 55% 42%,rgba(99,102,241,0.1) 0%,transparent 65%),
-    radial-gradient(ellipse 45% 45% at 82% 78%,rgba(139,92,246,0.08) 0%,transparent 60%),
-    radial-gradient(ellipse 40% 40% at 15% 20%,rgba(56,189,248,0.04) 0%,transparent 55%);
-  opacity:0;transition:opacity 700ms ease;
-}
-#content-grad.on{opacity:1}
-
-/* ══════════════════════════════════════
-   UI — STAGE (closed state)
-══════════════════════════════════════ */
-#stage{
-  position:absolute;inset:0;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding-bottom:18px;
-  z-index:2;pointer-events:none;
-}
-#stage.hidden{display:none}
-
-#center-wrap{
-  display:flex;flex-direction:column;align-items:center;gap:18px;
-  pointer-events:all;
-  transition:opacity 320ms ease,transform 320ms cubic-bezier(.55,0,1,.45);
-  animation:float 3.8s ease-in-out infinite;
-}
-#center-wrap.out{opacity:0;transform:scale(.82);pointer-events:none;animation:none;}
-
-/* particle / orbit ring */
-#orbit{
-  position:relative;width:160px;height:160px;
-  display:flex;align-items:center;justify-content:center;
-}
-.orbit-ring{
-  position:absolute;border-radius:50%;
-  border:1px solid rgba(56,189,248,0.09);
-  animation:spin-slow 18s linear infinite;
-}
-.orbit-ring:nth-child(1){width:130px;height:130px;border-color:rgba(56,189,248,0.1);animation-duration:14s}
-.orbit-ring:nth-child(2){width:155px;height:155px;border-color:rgba(139,92,246,0.07);animation-direction:reverse;animation-duration:22s}
-.orbit-dot{
-  position:absolute;width:4px;height:4px;border-radius:50%;background:var(--accent-cyan);
-  top:50%;left:0;margin-top:-2px;
-  box-shadow:0 0 6px var(--accent-cyan);
-}
-.orbit-ring:nth-child(2) .orbit-dot{background:var(--accent-purple);box-shadow:0 0 6px var(--accent-purple);left:auto;right:0}
-@keyframes spin-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-
-/* actual home button on stage */
-#big-btn{
-  width:72px;height:72px;border-radius:50%;
-  background:radial-gradient(circle at 36% 30%,rgba(56,189,248,0.13) 0%,rgba(7,5,15,0.96) 65%);
-  border:1.5px solid rgba(56,189,248,0.22);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;
-  box-shadow:0 8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
-  transition:box-shadow 250ms ease,border-color 250ms ease,transform 140ms ease,background 250ms ease;
-  position:relative;z-index:2;
-}
-#big-btn:hover{
-  border-color:rgba(56,189,248,0.45);
-  box-shadow:0 0 20px rgba(56,189,248,0.18),0 8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.06);
-}
-#big-btn.pressed{
-  transform:scale(0.87)!important;
-  border-color:rgba(56,189,248,0.75);
-  box-shadow:0 0 0 3px rgba(56,189,248,0.4),0 0 38px rgba(56,189,248,0.38),inset 0 1px 0 rgba(255,255,255,0.1);
-  background:radial-gradient(circle at 36% 30%,rgba(56,189,248,0.28) 0%,rgba(7,5,15,0.92) 65%);
-}
-#big-icon{width:32px;height:32px}
-.big-label{
-  font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:500;
-  letter-spacing:.38em;text-transform:uppercase;color:rgba(255,255,255,0.18);
-}
-
-/* animated glowing SVG ring around big btn */
-.glow-svg{
-  position:absolute;width:90px;height:90px;pointer-events:none;z-index:1;
-  animation:spin-slow 8s linear infinite;
-}
-
-/* ══════════════════════════════════════
-   UI — CONTENT HINT
-══════════════════════════════════════ */
-#hint{
-  position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:10px;
-  pointer-events:none;z-index:2;
-  opacity:0;transition:opacity 450ms ease;
-}
-#hint.on{opacity:1}
-.hint-svg{width:40px;height:40px;color:rgba(99,102,241,0.18)}
-.hint-txt{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:500;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,0.1)}
-
-/* ══════════════════════════════════════
-   UI — BREADCRUMB
-══════════════════════════════════════ */
-#breadcrumb-bar{
-  position:relative;z-index:10;
-  display:none;
-  align-items:center;gap:6px;
-  padding:8px 18px;
-  background:rgba(7,5,15,0.85);
-  border-bottom:1px solid rgba(139,92,246,0.1);
-  backdrop-filter:blur(8px);
-  flex-shrink:0;
-}
-#breadcrumb-bar.visible{display:flex}
-.bc-item{
-  font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:500;
-  letter-spacing:.2em;text-transform:uppercase;
-  color:rgba(255,255,255,0.28);
-}
-.bc-item.active{color:var(--accent-cyan)}
-.bc-sep{
-  font-size:9px;color:rgba(255,255,255,0.15);
-}
-.bc-home-icon{width:10px;height:10px;color:rgba(255,255,255,0.28);display:inline-block;vertical-align:middle;margin-right:2px}
-
-/* ══════════════════════════════════════
-   CONTENT LOADER — FRAME WRAPPER
-══════════════════════════════════════ */
-#frame-wrap{
-  flex:1;position:relative;overflow:hidden;
-  display:none;
-}
-#frame-wrap.visible{display:block}
-
-#content-frame{
-  width:100%;height:100%;border:none;
-  opacity:0;
-  transform:scale(0.985);
-  transition:opacity 380ms ease,transform 380ms cubic-bezier(.22,1,.36,1);
-  background:#fff;
-}
-#content-frame.loaded{
-  opacity:1;
-  transform:scale(1);
-}
-
-/* ══════════════════════════════════════
-   CONTENT LOADER — LOADING OVERLAY
-══════════════════════════════════════ */
-#loading-overlay{
-  position:absolute;inset:0;z-index:50;
-  background:radial-gradient(ellipse 80% 80% at 50% 40%,rgba(15,8,35,0.97) 0%,rgba(7,5,15,0.99) 70%);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
-  opacity:0;pointer-events:none;
-  transition:opacity 220ms ease;
-}
-#loading-overlay.visible{opacity:1;pointer-events:all}
-#loading-overlay.hiding{opacity:0}
-
-/* futuristic spinner */
-.fu-spinner{
-  position:relative;width:56px;height:56px;
-}
-.fu-ring{
-  position:absolute;inset:0;border-radius:50%;
-  border:1.5px solid transparent;
-}
-.fu-ring:nth-child(1){
-  border-top-color:var(--accent-cyan);
-  border-right-color:rgba(56,189,248,0.15);
-  animation:spin-cw 1.1s linear infinite;
-}
-.fu-ring:nth-child(2){
-  inset:8px;
-  border-bottom-color:var(--accent-purple);
-  border-left-color:rgba(139,92,246,0.15);
-  animation:spin-ccw 0.75s linear infinite;
-}
-.fu-ring:nth-child(3){
-  inset:16px;
-  border-top-color:rgba(99,102,241,0.7);
-  border-right-color:transparent;
-  animation:spin-cw 0.55s linear infinite;
-}
-.fu-core{
-  position:absolute;inset:22px;border-radius:50%;
-  background:radial-gradient(circle,rgba(56,189,248,0.25) 0%,transparent 70%);
-  animation:fu-pulse 1.4s ease-in-out infinite;
-}
-@keyframes spin-cw{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-@keyframes spin-ccw{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
-@keyframes fu-pulse{0%,100%{opacity:0.4;transform:scale(0.85)}50%{opacity:1;transform:scale(1.1)}}
-
-.loading-text-wrap{
-  display:flex;flex-direction:column;align-items:center;gap:6px;
-}
-.loading-label{
-  font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;
-  letter-spacing:.45em;text-transform:uppercase;
-  color:rgba(56,189,248,0.7);
-  animation:blink-label 1.8s ease-in-out infinite;
-}
-.loading-module{
-  font-family:'Exo 2',sans-serif;font-size:10px;font-weight:300;
-  letter-spacing:.12em;
-  color:rgba(255,255,255,0.22);
-}
-.loading-bar-track{
-  width:120px;height:1px;
-  background:rgba(255,255,255,0.06);
-  border-radius:1px;overflow:hidden;
-}
-.loading-bar-fill{
-  height:100%;width:0%;
-  background:linear-gradient(90deg,var(--accent-purple),var(--accent-cyan));
-  border-radius:1px;
-  animation:load-sweep 1.6s ease-in-out infinite;
-}
-@keyframes blink-label{0%,100%{opacity:.7}50%{opacity:1}}
-@keyframes load-sweep{
-  0%{width:0%;margin-left:0}
-  50%{width:60%;margin-left:20%}
-  100%{width:0%;margin-left:100%}
-}
-
-/* ══════════════════════════════════════
-   CONTENT LOADER — BLOCKED CARD
-══════════════════════════════════════ */
-#blocked-card{
-  position:absolute;inset:0;z-index:45;
-  display:none;
-  align-items:center;justify-content:center;
-  background:radial-gradient(ellipse 70% 60% at 50% 45%,rgba(15,8,35,0.96) 0%,rgba(7,5,15,0.99) 70%);
-  animation:fadein 300ms ease;
-}
-#blocked-card.visible{display:flex}
-@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-.blocked-inner{
-  display:flex;flex-direction:column;align-items:center;gap:18px;
-  padding:36px 32px;
-  background:rgba(255,255,255,0.025);
-  border:1px solid rgba(139,92,246,0.15);
-  border-radius:18px;
-  max-width:340px;text-align:center;
-  box-shadow:0 0 60px rgba(88,28,220,0.1);
-}
-.blocked-icon{
-  width:48px;height:48px;
-  background:radial-gradient(circle,rgba(99,102,241,0.15) 0%,transparent 70%);
-  border:1px solid rgba(99,102,241,0.2);
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-}
-.blocked-icon svg{width:22px;height:22px;color:rgba(99,102,241,0.6)}
-.blocked-title{
-  font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;
-  letter-spacing:.15em;text-transform:uppercase;
-  color:rgba(255,255,255,0.7);
-}
-.blocked-desc{
-  font-family:'Exo 2',sans-serif;font-size:11px;font-weight:300;
-  color:rgba(255,255,255,0.28);line-height:1.6;letter-spacing:.03em;
-}
-.blocked-btn{
-  font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;
-  letter-spacing:.3em;text-transform:uppercase;
-  padding:10px 24px;border-radius:8px;cursor:pointer;
-  background:transparent;
-  border:1px solid rgba(56,189,248,0.3);
-  color:rgba(56,189,248,0.8);
-  transition:background 200ms ease,border-color 200ms ease,box-shadow 200ms ease;
-}
-.blocked-btn:hover{
-  background:rgba(56,189,248,0.07);
-  border-color:rgba(56,189,248,0.6);
-  box-shadow:0 0 18px rgba(56,189,248,0.12);
-}
-
-/* ══════════════════════════════════════
-   UI — FOOTER
-══════════════════════════════════════ */
-#footer{
-  position:fixed;bottom:18px;left:0;right:0;
-  text-align:center;z-index:30;pointer-events:none;
-}
-#footer span{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,0.18)}
-#footer a{color:rgba(56,189,248,0.32);text-decoration:none;letter-spacing:.08em;transition:color 200ms ease;pointer-events:all}
-#footer a:hover{color:var(--accent-cyan)}
-
-/* ══════════════════════════════════════
-   UI — RESPONSIVE
-══════════════════════════════════════ */
-@media(max-width:480px){
-  :root{--menu-w:210px}
-  #orbit{width:130px;height:130px}
-  .orbit-ring:nth-child(1){width:105px;height:105px}
-  .orbit-ring:nth-child(2){width:126px;height:126px}
-  #big-btn{width:60px;height:60px}
-  #big-icon{width:26px;height:26px}
-  .blocked-inner{padding:28px 20px;max-width:90%}
-}
-</style>
+        .custom-scroll::-webkit-scrollbar { width: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
+        
+        /* Input pencarian lebih tinggi agar nyaman untuk paste banyak baris */
+        #searchInput {
+            min-height: 45px;
+            transition: all 0.3s ease;
+        }
+        #searchInput:focus {
+            min-height: 80px;
+        }
+    </style>
 </head>
-<body>
+<body class="antialiased">
 
-<div id="shell">
+    <div class="max-w-md mx-auto p-5 space-y-6">
+        
+        <header class="flex justify-end items-center py-2">
+            <div class="flex items-center space-x-2 bg-neutral-900 px-3 py-1.5 rounded-full border border-neutral-800">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-[9px] font-black text-white uppercase tracking-tighter">System Secured</span>
+            </div>
+        </header>
 
-  <!-- ── SIDEBAR ── -->
-  <div id="sidebar">
-    <div id="home-btn" role="button" aria-label="Tutup menu" tabindex="0">
-      <svg id="home-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M3 11.5L12 4L21 11.5V21H15V15.5H9V21H3V11.5Z" stroke="rgba(167,139,250,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M10 21V18C10 17.2 10.7 16.5 11.5 16.5H12.5C13.3 16.5 14 17.2 14 18V21" stroke="rgba(167,139,250,0.9)" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-    </div>
-  </div>
-
-  <!-- ── MENU PANEL ── -->
-  <div id="menu-panel">
-    <div class="menu-header"><h2>Muly@-Portal</h2></div>
-    <div class="menu-scroll" id="menu-scroll"></div>
-  </div>
-
-  <!-- ── CONTENT AREA ── -->
-  <div id="content">
-    <div id="vanta-bg" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;"></div>
-    <div id="content-grad"></div>
-
-    <!-- Stage (closed home button) -->
-    <div id="stage">
-      <div id="center-wrap">
-        <div id="orbit">
-          <div class="orbit-ring"><div class="orbit-dot"></div></div>
-          <div class="orbit-ring"><div class="orbit-dot"></div></div>
-          <svg class="glow-svg" viewBox="0 0 90 90" fill="none" aria-hidden="true">
-            <circle cx="45" cy="45" r="42" stroke="rgba(56,189,248,0.12)" stroke-width="1"/>
-            <path d="M45 3 A42 42 0 0 1 87 45" stroke="rgba(56,189,248,0.5)" stroke-width="1.5" stroke-linecap="round"/>
-            <circle cx="87" cy="45" r="2.5" fill="rgba(56,189,248,0.8)"/>
-          </svg>
-          <div id="big-btn" role="button" aria-label="Buka Muly Portal" tabindex="0">
-            <svg id="big-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-              <path d="M4 15L16 5L28 15V28H20.5V21H11.5V28H4V15Z" stroke="rgba(56,189,248,0.88)" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M13 28V24.5C13 23.7 13.7 23 14.5 23H17.5C18.3 23 19 23.7 19 24.5V28" stroke="rgba(56,189,248,0.88)" stroke-width="1.55" stroke-linecap="round"/>
-            </svg>
-          </div>
+        <div id="cameraContainer" class="hidden">
+            <div class="luxury-card p-3 border-2 border-[#d4af37]">
+                <div id="reader"></div>
+                <button onclick="stopCamera()" class="w-full mt-3 py-3 text-red-500 font-bold text-[10px] uppercase tracking-widest">
+                    Batalkan Pemindaian
+                </button>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Hint arrow (menu open, no content loaded) -->
-    <div id="hint">
-      <svg class="hint-svg" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
-        <path d="M8 20h24M26 14l6 6-6 6"/>
-      </svg>
-      <span class="hint-txt">Pilih modul</span>
-    </div>
+        <div id="formSection" class="luxury-card p-6 space-y-6">
+            <div class="flex space-x-2">
+                <button id="modePinjam" onclick="setMode('PINJAM')" class="flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-active uppercase">PINJAM</button>
+                <button id="modeKembali" onclick="setMode('KEMBALI')" class="flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase">KEMBALI</button>
+            </div>
 
-    <!-- Breadcrumb bar -->
-    <div id="breadcrumb-bar">
-      <svg class="bc-home-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M1 4.8L5 1.5L9 4.8V9.5H6.5V7H3.5V9.5H1V4.8Z"/>
-      </svg>
-      <span class="bc-item" id="bc-root">Home</span>
-      <span class="bc-sep" id="bc-sep1">/</span>
-      <span class="bc-item" id="bc-cat"></span>
-      <span class="bc-sep" id="bc-sep2">/</span>
-      <span class="bc-item active" id="bc-page"></span>
-    </div>
+            <div class="space-y-4">
+                <div class="space-y-2">
+                    <label class="text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] ml-1">Asset Identity</label>
+                    <div class="relative flex items-center">
+                        <input type="text" id="assetIdInput" readonly 
+                               class="w-full bg-neutral-900 border border-neutral-800 p-4 pr-14 rounded-2xl font-bold text-white text-xs outline-none focus:border-[#d4af37]" 
+                               placeholder="Scan QR Unit...">
+                        <button onclick="startCamera()" class="absolute right-2 p-2.5 btn-gold rounded-xl shadow-lg active:scale-90 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
 
-    <!-- Frame wrapper -->
-    <div id="frame-wrap">
-      <!-- Loading overlay -->
-      <div id="loading-overlay">
-        <div class="fu-spinner">
-          <div class="fu-ring"></div>
-          <div class="fu-ring"></div>
-          <div class="fu-ring"></div>
-          <div class="fu-core"></div>
+                <button id="submitBtn" onclick="submitData()" 
+                        class="w-full py-4 btn-gold font-black text-xs rounded-2xl tracking-[0.1em] uppercase shadow-xl active:scale-95 transition">
+                    Simpan ke Cloud Database
+                </button>
+            </div>
         </div>
-        <div class="loading-text-wrap">
-          <span class="loading-label">Loading Module...</span>
-          <span class="loading-module" id="loading-module-name"></span>
-        </div>
-        <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
-      </div>
 
-      <!-- Blocked card (X-Frame-Options) -->
-      <div id="blocked-card">
-        <div class="blocked-inner">
-          <div class="blocked-icon">
-            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="9"/>
-              <line x1="11" y1="7" x2="11" y2="11"/>
-              <circle cx="11" cy="14.5" r=".7" fill="currentColor" stroke="none"/>
-            </svg>
-          </div>
-          <span class="blocked-title">Module Cannot Be Embedded</span>
-          <span class="blocked-desc">Halaman ini menolak pemuatan dalam frame karena kebijakan keamanan (X-Frame-Options / CSP).</span>
-          <button class="blocked-btn" id="blocked-open-btn">Open in New Tab</button>
+        <div class="luxury-card overflow-hidden">
+            <div class="px-6 py-5 border-b border-neutral-800 bg-neutral-900/50 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Live Monitoring</h3>
+                    <span id="outBadge" class="bg-yellow-950/30 text-[#d4af37] text-[9px] font-black px-3 py-1 rounded-md border border-yellow-900/50">0 UNIT OUT</span>
+                </div>
+                
+                <div class="relative space-y-2">
+                    <textarea id="searchInput" onkeyup="filterTable()" 
+                           placeholder="Tempel daftar ID/Nama di sini..." 
+                           class="w-full bg-black border border-neutral-800 px-4 py-3 rounded-xl text-[10px] font-semibold text-white outline-none focus:border-[#d4af37] custom-scroll" rows="1"></textarea>
+                    
+                    <div id="notFoundAlert" class="hidden notif-alert bg-red-950/40 border border-red-500/50 p-3 rounded-xl">
+                        <div class="flex items-start space-x-2">
+                            <svg class="w-3 h-3 text-red-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            <div class="flex-1">
+                                <p class="text-[8px] font-black text-red-400 uppercase tracking-widest mb-1">Asset Belum Kembali / Tidak Ditemukan:</p>
+                                <p class="text-[10px] font-bold text-white leading-relaxed" id="notFoundText"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="max-h-[350px] overflow-y-auto custom-scroll">
+                <table id="mainTable" class="w-full text-left">
+                    <thead class="bg-neutral-900 text-[8px] font-black text-neutral-500 uppercase">
+                        <tr>
+                            <th class="px-6 py-3">ID Asset / PIC</th>
+                            <th class="px-6 py-3 text-right">Durasi Pinjam</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody" class="divide-y divide-neutral-800">
+                    </tbody>
+                </table>
+            </div>
         </div>
-      </div>
 
-      <!-- The iframe -->
-      <iframe id="content-frame" title="Content Frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe>
+        <footer class="mt-10 mb-6 px-4">
+            <div class="border-t border-neutral-900 pt-6 flex flex-col items-center space-y-5">
+                <div class="flex items-center space-x-3">
+                    <a href="https://wa.me/62895340174853" target="_blank" class="flex items-center space-x-2 bg-neutral-900/40 border border-neutral-800 px-4 py-2 rounded-xl">
+                        <div class="bg-green-600 p-1 rounded-md">
+                            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        </div>
+                        <span class="text-[9px] font-bold text-neutral-400 uppercase">Contact Us</span>
+                    </a>
+                    <a href="https://i.pinimg.com/736x/98/b2/1c/98b21cbf6cac4bb27863b2b34fa80eb8.jpg" target="_blank" class="p-2 bg-neutral-900/40 border border-neutral-800 rounded-xl">
+                        <div class="bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 p-1 rounded-md">
+                            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        </div>
+                    </a>
+                </div>
+                <div class="text-center">
+                    <p class="text-[8px] font-black gold-solid uppercase tracking-[0.3em]">Powered By Muly@.ID</p>
+                    <p class="text-[6px] font-bold text-neutral-700 uppercase tracking-[0.1em] mt-1 italic">&copy; 2026 Logistics Ops System</p>
+                </div>
+            </div>
+        </footer>
     </div>
 
-  </div><!-- #content -->
-</div><!-- #shell -->
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxERurz5XLHHI630eGb7ixMkulJ3lFMk0kOxRNlBTJu2FHBmGqmFMlljmo-0scqq88B/exec";
+        let currentMode = "PINJAM";
+        let html5QrCode = null;
 
-<div id="footer">
-  <span>Powered By: <a href="mailto:Muly@.ID">Muly@.ID</a></span>
-</div>
+        // --- FUNGSI PENCARIAN CERDAS (MULTIPLE ROW & ID EXTRACTION) ---
+        function filterTable() {
+            const input = document.getElementById("searchInput");
+            const rawValue = input.value.trim();
+            const alertBox = document.getElementById("notFoundAlert");
+            const alertText = document.getElementById("notFoundText");
+            
+            if (!rawValue) {
+                resetTable();
+                alertBox.classList.add('hidden');
+                return;
+            }
 
-<!-- ══════════════════════════════════════
-     SCRIPTS
-══════════════════════════════════════ -->
-<script>
-(function(){
-'use strict';
+            // Split berdasarkan baris baru atau koma
+            let lines = rawValue.split(/\n|,/);
+            
+            // Ambil ID-nya saja (biasanya angka di depan sebelum spasi/tab)
+            let searchKeys = lines.map(line => {
+                let clean = line.trim().split(/\s+/)[0]; // Ambil elemen pertama
+                return clean.toUpperCase();
+            }).filter(k => k !== "");
 
-/* ══════════════════════════════════════
-   NAVIGATION — Menu Data
-══════════════════════════════════════ */
-const MENU=[
-  { cat:'ANALYS', label:'Analisa', items:[
-    {id:'produktivitas',label:'Analisa Produktivitas',url:'https://mulyadhialawihisyam-design.github.io/bobotpacker/',
-     icon:`<svg viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="15" y1="16" x2="15" y2="8"/><line x1="9" y1="16" x2="9" y2="3"/><line x1="3" y1="16" x2="3" y2="11"/><line x1="1" y1="16" x2="16" y2="16"/></svg>`},
-    {id:'complain',label:'Analisa Complain',url:'https://mulyadhialawihisyam-design.github.io/dashboard-complain/',
-     icon:`<svg viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8.5" r="7"/><line x1="8.5" y1="5.5" x2="8.5" y2="8.5"/><circle cx="8.5" cy="11.5" r=".5" fill="currentColor"/></svg>`},
-    {id:'checkpoint',label:'Analisa Checkpoint',url:'https://mulyadhialawihisyam-design.github.io/analisa_invoicedroping/',
-     icon:`<svg viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 8.5 12 8.5 10 14 7 3 5 8.5 1 8.5"/></svg>`},
-  ]},
-  { cat:'MONITORING', label:'Monitoring', items:[
-    {id:'asset',label:'Asset',url:'https://mulyadhialawihisyam-design.github.io/cuttermonitoring/',
-     icon:`<svg viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="15" height="10" rx="1.5"/><path d="M5 15h7M8.5 12v3"/><circle cx="8.5" cy="7" r="2.2"/></svg>`},
-  ]},
-  { cat:'QC', label:'Menyusul', items:[
-    {id:'qc',label:'Menyusul',url:'#',disabled:true,
-     icon:`<svg viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8.5" r="7"/><polyline points="8.5 5 8.5 8.5 11 10"/></svg>`},
-  ]},
-];
+            const tr = document.getElementById("mainTable").getElementsByTagName("tr");
+            let foundKeys = new Set();
 
-/* ══════════════════════════════════════
-   UI — Element Refs
-══════════════════════════════════════ */
-const sidebar       = document.getElementById('sidebar');
-const menuPanel     = document.getElementById('menu-panel');
-const menuScroll    = document.getElementById('menu-scroll');
-const homeBtn       = document.getElementById('home-btn');
-const bigBtn        = document.getElementById('big-btn');
-const centerWrap    = document.getElementById('center-wrap');
-const contentGrad   = document.getElementById('content-grad');
-const hint          = document.getElementById('hint');
-const breadcrumbBar = document.getElementById('breadcrumb-bar');
-const bcCat         = document.getElementById('bc-cat');
-const bcPage        = document.getElementById('bc-page');
-const bcSep1        = document.getElementById('bc-sep1');
-const bcSep2        = document.getElementById('bc-sep2');
-const frameWrap     = document.getElementById('frame-wrap');
-const iframe        = document.getElementById('content-frame');
-const loadingOvl    = document.getElementById('loading-overlay');
-const loadingName   = document.getElementById('loading-module-name');
-const blockedCard   = document.getElementById('blocked-card');
-const blockedBtn    = document.getElementById('blocked-open-btn');
-const stage         = document.getElementById('stage');
+            for (let i = 1; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    const cellContent = td.textContent || td.innerText;
+                    const cellUpper = cellContent.toUpperCase();
+                    
+                    let isMatch = false;
+                    searchKeys.forEach(key => {
+                        if (cellUpper.indexOf(key) > -1) {
+                            isMatch = true;
+                            foundKeys.add(key);
+                        }
+                    });
+                    tr[i].style.display = isMatch ? "" : "none";
+                }
+            }
 
-/* ══════════════════════════════════════
-   UI — State
-══════════════════════════════════════ */
-let isOpen        = false;
-let busy          = false;
-let activeRow     = null;
-let currentUrl    = '';
-let loadTimer     = null;
-let blockedUrl    = '';
+            // Validasi: Siapa yang dicari tapi tidak ada di tabel (belum kembali)
+            const missing = searchKeys.filter(key => !foundKeys.has(key));
+            if (missing.length > 0) {
+                alertBox.classList.remove('hidden');
+                alertText.innerText = missing.join(' | ');
+            } else {
+                alertBox.classList.add('hidden');
+            }
+        }
 
-/* ══════════════════════════════════════
-   NAVIGATION — Build Menu
-══════════════════════════════════════ */
-MENU.forEach(group=>{
-  const g = document.createElement('div');
-  g.className = 'cat-group';
-  g.dataset.cat = group.cat;
+        function resetTable() {
+            const tr = document.getElementById("mainTable").getElementsByTagName("tr");
+            for (let i = 1; i < tr.length; i++) tr[i].style.display = "";
+        }
 
-  const hdr = document.createElement('div');
-  hdr.className = 'cat-header';
-  hdr.innerHTML = `<div class="cat-dot"></div><span class="cat-title">${group.label}</span>
-    <svg class="cat-arrow" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><polyline points="4.5 2 9.5 6.5 4.5 11"/></svg>`;
+        // --- SCANNER ENGINE (SUPPORT HP JADUL) ---
+        async function startCamera() {
+            const container = document.getElementById('cameraContainer');
+            container.classList.remove('hidden');
+            if (html5QrCode) { try { await html5QrCode.clear(); } catch(e) {} }
+            html5QrCode = new Html5Qrcode("reader");
+            
+            const config = { 
+                fps: 20, 
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0,
+                experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+            };
 
-  const items = document.createElement('div');
-  items.className = 'cat-items';
+            try {
+                await html5QrCode.start({ facingMode: "environment" }, config, (txt) => {
+                    document.getElementById('assetIdInput').value = txt.toUpperCase().trim();
+                    if (navigator.vibrate) navigator.vibrate(80);
+                    stopCamera();
+                });
+            } catch (err) { stopCamera(); }
+        }
 
-  if(group.items.length === 1){ hdr.classList.add('open'); items.classList.add('open'); }
+        function stopCamera() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => { 
+                    document.getElementById('cameraContainer').classList.add('hidden'); 
+                }).catch(() => {
+                    document.getElementById('cameraContainer').classList.add('hidden');
+                });
+            }
+        }
 
-  group.items.forEach(item=>{
-    const row = document.createElement('div');
-    row.className = 'menu-item' + (item.disabled ? ' disabled' : '');
-    row.dataset.id = item.id;
-    row.innerHTML = `<div class="item-icon">${item.icon}</div>
-      <span class="item-label">${item.label}</span>
-      ${item.disabled
-        ? '<span class="soon-pill">Segera</span>'
-        : `<svg class="item-arr" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="3.5 2 8.5 5.5 3.5 9"/></svg>`}`;
+        // --- DATA SUBMISSION ---
+        async function submitData() {
+            const assetId = document.getElementById('assetIdInput').value;
+            const btn = document.getElementById('submitBtn');
+            if (!assetId) return alert("Scan QR Terlebih Dahulu!");
+            
+            btn.disabled = true;
+            btn.innerText = "SINKRONISASI...";
+            
+            try {
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: JSON.stringify({ assetId: assetId, statusAksi: currentMode }) 
+                });
+                document.getElementById('assetIdInput').value = "";
+                setTimeout(syncData, 1500);
+            } catch (err) { alert("Cloud Error."); }
+            finally { btn.disabled = false; btn.innerText = "SIMPAN KE CLOUD DATABASE"; }
+        }
 
-    if(!item.disabled){
-      row.addEventListener('click', ()=>{
-        setActiveRow(row);
-        updateBreadcrumb(group.label, item.label);
-        loadPage(item.url, item.label);
-      });
-    }
-    items.appendChild(row);
-  });
+        // --- FETCH & SORT DATA ---
+        async function syncData() {
+            const tbody = document.getElementById('dataTableBody');
+            try {
+                const response = await fetch(SCRIPT_URL + "?action=getdata");
+                const res = await response.json();
+                document.getElementById('outBadge').innerText = `${res.stats.out} UNIT OUT`;
 
-  hdr.addEventListener('click', ()=>{
-    const opening = !items.classList.contains('open');
-    menuScroll.querySelectorAll('.cat-items.open').forEach(el=>{
-      el.classList.remove('open');
-      el.closest('.cat-group').querySelector('.cat-header').classList.remove('open');
-    });
-    if(opening){ items.classList.add('open'); hdr.classList.add('open'); }
-  });
+                if (!res.listDipinjam || res.listDipinjam.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="2" class="px-6 py-12 text-center text-neutral-600 text-[9px] font-black uppercase tracking-widest italic">Inventory Safe</td></tr>`;
+                    return;
+                }
 
-  g.appendChild(hdr);
-  g.appendChild(items);
-  menuScroll.appendChild(g);
-});
+                // Sort Waktu Terlama (Older First)
+                const sorted = res.listDipinjam.sort((a, b) => {
+                    const p = (d) => new Date(d.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
+                    return p(a.waktu) - p(b.waktu);
+                });
 
-/* ══════════════════════════════════════
-   NAVIGATION — Active Row State
-══════════════════════════════════════ */
-function setActiveRow(row){
-  if(activeRow) activeRow.classList.remove('active');
-  activeRow = row;
-  row.classList.add('active');
-}
+                tbody.innerHTML = sorted.map(item => `
+                    <tr class="hover:bg-neutral-900 transition border-neutral-800">
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col">
+                                <span class="text-[11px] font-black text-white tracking-tight">${item.id}</span>
+                                <span class="text-[8px] font-bold text-neutral-500 uppercase">${item.user || 'PIC'}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-black text-[#d4af37]">${item.waktu.split(' ')[1]}</span>
+                                <span class="text-[8px] font-bold text-neutral-600">${item.waktu.split(' ')[0]}</span>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+                filterTable();
+            } catch (err) {}
+        }
 
-/* ══════════════════════════════════════
-   NAVIGATION — Breadcrumb Update
-══════════════════════════════════════ */
-function updateBreadcrumb(catLabel, pageLabel){
-  bcCat.textContent  = catLabel;
-  bcPage.textContent = pageLabel;
-  bcSep1.style.display = '';
-  bcSep2.style.display = '';
-  breadcrumbBar.classList.add('visible');
-}
+        function setMode(mode) {
+            currentMode = mode;
+            const btnP = document.getElementById('modePinjam');
+            const btnK = document.getElementById('modeKembali');
+            if (mode === 'PINJAM') {
+                btnP.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-active uppercase";
+                btnK.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase";
+            } else {
+                btnK.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all bg-green-600 text-white uppercase shadow-lg shadow-green-900/20";
+                btnP.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase";
+            }
+        }
 
-/* ══════════════════════════════════════
-   CONTENT LOADER — Load Page into Frame
-══════════════════════════════════════ */
-function loadPage(url, label){
-  currentUrl  = url;
-  blockedUrl  = url;
-
-  /* hide hint if showing */
-  hint.classList.remove('on');
-
-  /* show frame wrapper if first load */
-  frameWrap.classList.add('visible');
-  stage.classList.add('hidden');
-
-  /* reset frame state */
-  iframe.classList.remove('loaded');
-  blockedCard.classList.remove('visible');
-
-  /* show loading overlay */
-  loadingName.textContent = label || '';
-  loadingOvl.classList.remove('hiding');
-  loadingOvl.classList.add('visible');
-
-  /* clear previous load timer */
-  if(loadTimer) clearTimeout(loadTimer);
-
-  /* set iframe src */
-  iframe.src = '';
-  /* tiny delay so browser registers src change */
-  setTimeout(()=>{ iframe.src = url; }, 30);
-
-  /* fallback: if load doesn't fire in 8s, assume blocked */
-  loadTimer = setTimeout(()=>{ handleBlocked(); }, 8000);
-}
-
-/* ══════════════════════════════════════
-   CONTENT LOADER — iframe load/error handlers
-══════════════════════════════════════ */
-iframe.addEventListener('load', ()=>{
-  clearTimeout(loadTimer);
-
-  /* try to detect blocked frame via contentDocument access */
-  let blocked = false;
-  try{
-    /* If same-origin: we can access it — not blocked */
-    const doc = iframe.contentDocument;
-    /* blank or about:blank usually means load fired before real content */
-    if(doc && doc.location && (doc.location.href === 'about:blank' || doc.location.href === '')){
-      /* ignore: waiting for real load */
-      return;
-    }
-  } catch(e){
-    /* cross-origin — cannot determine block, assume ok for now */
-  }
-
-  if(!blocked){
-    revealFrame();
-  }
-});
-
-iframe.addEventListener('error', ()=>{
-  clearTimeout(loadTimer);
-  handleBlocked();
-});
-
-function revealFrame(){
-  /* hide loading overlay smoothly */
-  loadingOvl.classList.add('hiding');
-  setTimeout(()=>{
-    loadingOvl.classList.remove('visible');
-    loadingOvl.classList.remove('hiding');
-    /* fade-in frame */
-    iframe.classList.add('loaded');
-  }, 220);
-}
-
-function handleBlocked(){
-  loadingOvl.classList.remove('visible');
-  iframe.classList.remove('loaded');
-  blockedCard.classList.add('visible');
-}
-
-/* blocked — open in new tab */
-blockedBtn.addEventListener('click', ()=>{
-  if(blockedUrl && blockedUrl !== '#'){
-    window.open(blockedUrl, '_blank', 'noopener,noreferrer');
-  }
-});
-
-/* ══════════════════════════════════════
-   EVENT HANDLERS — Portal Open/Close
-══════════════════════════════════════ */
-function openPortal(){
-  if(isOpen || busy) return;
-  busy = true;
-  bigBtn.classList.add('pressed');
-
-  setTimeout(()=>{
-    bigBtn.classList.remove('pressed');
-    centerWrap.classList.add('out');
-
-    setTimeout(()=>{
-      sidebar.classList.add('visible');
-      menuPanel.classList.add('visible');
-      contentGrad.classList.add('on');
-      homeBtn.classList.add('lit');
-
-      /* show hint only if no module loaded yet */
-      if(!frameWrap.classList.contains('visible')){
-        setTimeout(()=>{ hint.classList.add('on'); }, 620);
-      }
-
-      isOpen = true;
-      busy   = false;
-    }, 280);
-  }, 165);
-}
-
-function closePortal(){
-  if(!isOpen || busy) return;
-  busy = true;
-  homeBtn.classList.add('pressed');
-  setTimeout(()=> homeBtn.classList.remove('pressed'), 160);
-
-  hint.classList.remove('on');
-  menuPanel.classList.remove('visible');
-
-  setTimeout(()=>{
-    sidebar.classList.remove('visible');
-    homeBtn.classList.remove('lit');
-    contentGrad.classList.remove('on');
-
-    setTimeout(()=>{
-      /* only bring center-wrap back if no content loaded */
-      if(!frameWrap.classList.contains('visible')){
-        centerWrap.classList.remove('out');
-      }
-      isOpen = false;
-      busy   = false;
-    }, 300);
-  }, 90);
-}
-
-bigBtn.addEventListener('click', openPortal);
-bigBtn.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openPortal(); } });
-homeBtn.addEventListener('click', closePortal);
-homeBtn.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); closePortal(); } });
-
-})();
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.halo.min.js"></script>
-<script>
-VANTA.HALO({
-  el: "#vanta-bg",
-  mouseControls: true,
-  touchControls: true,
-  gyroControls: false,
-  minHeight: 200,
-  minWidth: 200,
-  backgroundColor: 0x07050f,
-  baseColor: 0x7a00ff,
-  amplitudeFactor: 1.5,
-  size: 1.2
-});
-</script>
+        window.onload = syncData;
+        setInterval(syncData, 30000);
+    </script>
 </body>
 </html>
