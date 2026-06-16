@@ -7,96 +7,295 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    
+
     <style>
+        /* ===== BASE THEMES ===== */
+        :root {
+            --bg-deep: #06120f;
+            --bg-panel: #0c1d17;
+            --bg-panel-soft: #102822;
+            --border-soft: #1f3d33;
+            --accent: #2dd4a7;
+            --accent-soft: #58e0bd;
+            --accent-gold: #d9b95c;
+            --text-main: #eafff5;
+            --text-dim: #6f9c8d;
+            --pinjam-from: #2dd4a7;
+            --pinjam-to: #58e0bd;
+            --pinjam-shadow: rgba(45,212,167,0.4);
+            --kembali-from: #f97316;
+            --kembali-to: #fb923c;
+            --kembali-shadow: rgba(249,115,22,0.4);
+        }
+
+        /* THEME: VIOLET */
+        [data-theme="violet"] {
+            --bg-deep: #07050f;
+            --bg-panel: #110d1e;
+            --bg-panel-soft: #1a1230;
+            --border-soft: #2e1f55;
+            --accent: #a78bfa;
+            --accent-soft: #c4b5fd;
+            --accent-gold: #f0abfc;
+            --text-main: #f0ebff;
+            --text-dim: #7c6fa0;
+            --pinjam-from: #7c3aed;
+            --pinjam-to: #a78bfa;
+            --pinjam-shadow: rgba(124,58,237,0.45);
+            --kembali-from: #ec4899;
+            --kembali-to: #f9a8d4;
+            --kembali-shadow: rgba(236,72,153,0.45);
+        }
+
+        /* THEME: AMBER */
+        [data-theme="amber"] {
+            --bg-deep: #0f0900;
+            --bg-panel: #1a1000;
+            --bg-panel-soft: #261800;
+            --border-soft: #4a3100;
+            --accent: #f59e0b;
+            --accent-soft: #fcd34d;
+            --accent-gold: #fb923c;
+            --text-main: #fffbeb;
+            --text-dim: #92743a;
+            --pinjam-from: #d97706;
+            --pinjam-to: #fbbf24;
+            --pinjam-shadow: rgba(217,119,6,0.45);
+            --kembali-from: #dc2626;
+            --kembali-to: #f87171;
+            --kembali-shadow: rgba(220,38,38,0.45);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0a0a0a; 
-            color: #d4af37; 
+            background: radial-gradient(circle at 15% 0%, color-mix(in srgb, var(--bg-panel) 80%, transparent) 0%, var(--bg-deep) 55%, #040907 100%);
+            color: var(--accent-gold);
             -webkit-tap-highlight-color: transparent;
+            min-height: 100vh;
         }
         .luxury-card {
-            background: #141414;
-            border: 1px solid #262626;
+            background: linear-gradient(160deg, var(--bg-panel) 0%, var(--bg-deep) 100%);
+            border: 1px solid var(--border-soft);
             border-radius: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 35px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.03);
         }
         .btn-gold {
-            background: linear-gradient(135deg, #d4af37 0%, #f2d479 100%);
-            color: #000;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 45%, var(--accent-gold) 100%);
+            color: #04140f;
+            box-shadow: 0 8px 20px var(--pinjam-shadow);
         }
         #reader {
             width: 100%;
             border-radius: 1rem;
             overflow: hidden;
-            border: 2px solid #d4af37;
+            border: 2px solid var(--accent);
         }
         #reader__dashboard_section_csr button { display: none !important; }
         #reader video { object-fit: cover !important; }
-        
-        .tab-active {
-            background-color: #d4af37;
-            color: #000;
+
+        /* ===== PINJAM / KEMBALI TABS ===== */
+        .tab-pinjam-active {
+            background: linear-gradient(135deg, var(--pinjam-from) 0%, var(--pinjam-to) 100%);
+            color: #04140f;
+            font-weight: 900;
+            box-shadow: 0 5px 18px var(--pinjam-shadow);
+            transform: scale(1.02);
+            border: none;
+        }
+        .tab-kembali-active {
+            background: linear-gradient(135deg, var(--kembali-from) 0%, var(--kembali-to) 100%);
+            color: #fff;
+            font-weight: 900;
+            box-shadow: 0 5px 18px var(--kembali-shadow);
+            transform: scale(1.02);
+            border: none;
         }
         .tab-inactive {
-            color: #737373;
-            border: 1px solid #262626;
+            color: var(--text-dim);
+            border: 1px solid var(--border-soft);
+            background: rgba(255,255,255,0.01);
+            transform: scale(1);
         }
-        .gold-solid { color: #d4af37; }
-        
+        .tab-inactive:hover {
+            background: rgba(255,255,255,0.04);
+        }
+
+        .gold-solid { color: var(--accent-gold); }
+
         @keyframes slideIn {
             from { transform: translateY(10px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        .notif-alert {
-            animation: slideIn 0.3s ease-out forwards;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
         }
+        .notif-alert { animation: slideIn 0.3s ease-out forwards; }
 
         .custom-scroll::-webkit-scrollbar { width: 3px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
-        
-        /* Input pencarian lebih tinggi agar nyaman untuk paste banyak baris */
-        #searchInput {
-            min-height: 45px;
-            transition: all 0.3s ease;
+        .custom-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+        #searchInput { min-height: 45px; transition: all 0.3s ease; }
+        #searchInput:focus { min-height: 80px; }
+
+        .row-stale { box-shadow: inset 3px 0 0 0 #e0584f; }
+        .row-warn  { box-shadow: inset 3px 0 0 0 var(--accent-gold); }
+        .row-fresh { box-shadow: inset 3px 0 0 0 var(--accent); }
+
+        .pill-glow {
+            background: rgba(45,212,167,0.08);
+            border: 1px solid rgba(45,212,167,0.35);
         }
-        #searchInput:focus {
-            min-height: 80px;
+        [data-theme="violet"] .pill-glow {
+            background: rgba(167,139,250,0.08);
+            border: 1px solid rgba(167,139,250,0.35);
+        }
+        [data-theme="amber"] .pill-glow {
+            background: rgba(245,158,11,0.08);
+            border: 1px solid rgba(245,158,11,0.35);
+        }
+
+        /* ===== THEME SWITCHER ===== */
+        .theme-switcher {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .theme-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        .theme-btn:hover { transform: scale(1.15); }
+        .theme-btn.active {
+            border-color: #fff;
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.25);
+            transform: scale(1.1);
+        }
+        .theme-btn.active::after {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+        }
+        .theme-green  { background: linear-gradient(135deg, #2dd4a7, #d9b95c); }
+        .theme-violet { background: linear-gradient(135deg, #7c3aed, #ec4899); }
+        .theme-amber  { background: linear-gradient(135deg, #d97706, #dc2626); }
+
+        /* ===== HEADER MASCOT ===== */
+        .header-mascot {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .mascot-img {
+            width: 52px;
+            height: 52px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px var(--accent));
+            transition: filter 0.4s ease;
+            animation: floatMascot 3s ease-in-out infinite;
+        }
+        @keyframes floatMascot {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        .mascot-tagline {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .mascot-tagline .brand {
+            font-size: 9px;
+            font-weight: 900;
+            color: var(--text-dim);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+        .mascot-tagline .slogan {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--accent-soft);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+        .mascot-tagline .slogan span {
+            color: var(--accent-gold);
+        }
+
+        /* theme transition */
+        body, .luxury-card, .btn-gold, .tab-pinjam-active, .tab-kembali-active {
+            transition: background 0.4s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.4s ease;
         }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased" data-theme="green">
 
     <div class="max-w-md mx-auto p-5 space-y-6">
-        
-        <header class="flex justify-end items-center py-2">
-            <div class="flex items-center space-x-2 bg-neutral-900 px-3 py-1.5 rounded-full border border-neutral-800">
-                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span class="text-[9px] font-black text-white uppercase tracking-tighter">System Secured</span>
+
+        <!-- HEADER -->
+        <header class="flex justify-between items-center py-2">
+            <div class="header-mascot">
+                <img src="https://id.portal-pokemon.com/play/resources/pokedex/img/pm/695f16aee44c5436f2bd003f8f1ab1100cdf5383.png"
+                     alt="Pokemon Mascot"
+                     class="mascot-img"
+                     onerror="this.style.display='none'">
+                <div class="mascot-tagline">
+                    <span class="brand">Muly@.ID</span>
+                    <span class="slogan">Yang sekolah <span>pasti nye'can</span> ⚡</span>
+                </div>
+            </div>
+
+            <!-- THEME SWITCHER + STATUS -->
+            <div class="flex flex-col items-end gap-2">
+                <div class="flex items-center space-x-2 px-3 py-1.5 rounded-full pill-glow">
+                    <div class="w-2 h-2 rounded-full animate-pulse" style="background:var(--accent);"></div>
+                    <span class="text-[9px] font-black text-white uppercase tracking-tighter">Live</span>
+                </div>
+                <div class="theme-switcher">
+                    <button class="theme-btn theme-green active" onclick="setTheme('green')" id="btn-green" title="Hijau"></button>
+                    <button class="theme-btn theme-violet" onclick="setTheme('violet')" id="btn-violet" title="Violet"></button>
+                    <button class="theme-btn theme-amber" onclick="setTheme('amber')" id="btn-amber" title="Amber"></button>
+                </div>
             </div>
         </header>
 
+        <!-- CAMERA -->
         <div id="cameraContainer" class="hidden">
-            <div class="luxury-card p-3 border-2 border-[#d4af37]">
+            <div class="luxury-card p-3" style="border:2px solid var(--accent);">
                 <div id="reader"></div>
-                <button onclick="stopCamera()" class="w-full mt-3 py-3 text-red-500 font-bold text-[10px] uppercase tracking-widest">
+                <button onclick="stopCamera()" class="w-full mt-3 py-3 font-bold text-[10px] uppercase tracking-widest" style="color:#e0584f;">
                     Batalkan Pemindaian
                 </button>
             </div>
         </div>
 
+        <!-- FORM -->
         <div id="formSection" class="luxury-card p-6 space-y-6">
+            <!-- TABS PINJAM / KEMBALI -->
             <div class="flex space-x-2">
-                <button id="modePinjam" onclick="setMode('PINJAM')" class="flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-active uppercase">PINJAM</button>
-                <button id="modeKembali" onclick="setMode('KEMBALI')" class="flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase">KEMBALI</button>
+                <button id="modePinjam" onclick="setMode('PINJAM')"
+                        class="flex-1 py-3.5 text-[10px] font-black rounded-xl transition-all tab-pinjam-active uppercase tracking-widest">
+                    ↓ PINJAM
+                </button>
+                <button id="modeKembali" onclick="setMode('KEMBALI')"
+                        class="flex-1 py-3.5 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase tracking-widest">
+                    ↑ KEMBALI
+                </button>
             </div>
 
             <div class="space-y-4">
                 <div class="space-y-2">
-                    <label class="text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] ml-1">Asset Identity</label>
+                    <label class="text-[9px] font-black uppercase tracking-[0.2em] ml-1" style="color:var(--text-dim);">Asset Identity</label>
                     <div class="relative flex items-center">
-                        <input type="text" id="assetIdInput" readonly 
-                               class="w-full bg-neutral-900 border border-neutral-800 p-4 pr-14 rounded-2xl font-bold text-white text-xs outline-none focus:border-[#d4af37]" 
+                        <input type="text" id="assetIdInput" readonly
+                               class="w-full p-4 pr-14 rounded-2xl font-bold text-white text-xs outline-none"
+                               style="background:var(--bg-panel-soft); border:1px solid var(--border-soft);"
                                placeholder="Scan QR Unit...">
                         <button onclick="startCamera()" class="absolute right-2 p-2.5 btn-gold rounded-xl shadow-lg active:scale-90 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -106,61 +305,63 @@
                     </div>
                 </div>
 
-                <button id="submitBtn" onclick="submitData()" 
+                <button id="submitBtn" onclick="submitData()"
                         class="w-full py-4 btn-gold font-black text-xs rounded-2xl tracking-[0.1em] uppercase shadow-xl active:scale-95 transition">
                     Simpan ke Cloud Database
                 </button>
             </div>
         </div>
 
+        <!-- MONITORING TABLE -->
         <div class="luxury-card overflow-hidden">
-            <div class="px-6 py-5 border-b border-neutral-800 bg-neutral-900/50 space-y-4">
+            <div class="px-6 py-5 space-y-4" style="border-bottom:1px solid var(--border-soft); background:rgba(255,255,255,0.015);">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Live Monitoring</h3>
-                    <span id="outBadge" class="bg-yellow-950/30 text-[#d4af37] text-[9px] font-black px-3 py-1 rounded-md border border-yellow-900/50">0 UNIT OUT</span>
+                    <h3 class="text-[10px] font-black uppercase tracking-widest" style="color:var(--text-dim);">Live Monitoring</h3>
+                    <span id="outBadge" class="text-[9px] font-black px-3 py-1 rounded-md pill-glow" style="color:var(--accent-soft);">0 UNIT OUT</span>
                 </div>
-                
+
                 <div class="relative space-y-2">
-                    <textarea id="searchInput" onkeyup="filterTable()" 
-                           placeholder="Tempel daftar ID/Nama di sini..." 
-                           class="w-full bg-black border border-neutral-800 px-4 py-3 rounded-xl text-[10px] font-semibold text-white outline-none focus:border-[#d4af37] custom-scroll" rows="1"></textarea>
-                    
-                    <div id="notFoundAlert" class="hidden notif-alert bg-red-950/40 border border-red-500/50 p-3 rounded-xl">
+                    <textarea id="searchInput" onkeyup="filterTable()"
+                           placeholder="Tempel daftar ID/Nama di sini..."
+                           class="w-full px-4 py-3 rounded-xl text-[10px] font-semibold text-white outline-none custom-scroll"
+                           style="background:#020806; border:1px solid var(--border-soft);" rows="1"></textarea>
+
+                    <div id="notFoundAlert" class="hidden notif-alert p-3 rounded-xl" style="background:rgba(224,88,79,0.12); border:1px solid rgba(224,88,79,0.4);">
                         <div class="flex items-start space-x-2">
-                            <svg class="w-3 h-3 text-red-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            <svg class="w-3 h-3 mt-0.5" style="color:#e0584f;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                             <div class="flex-1">
-                                <p class="text-[8px] font-black text-red-400 uppercase tracking-widest mb-1">Asset Belum Kembali / Tidak Ditemukan:</p>
+                                <p class="text-[8px] font-black uppercase tracking-widest mb-1" style="color:#f0958d;">Asset Belum Kembali / Tidak Ditemukan:</p>
                                 <p class="text-[10px] font-bold text-white leading-relaxed" id="notFoundText"></p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="max-h-[350px] overflow-y-auto custom-scroll">
                 <table id="mainTable" class="w-full text-left">
-                    <thead class="bg-neutral-900 text-[8px] font-black text-neutral-500 uppercase">
+                    <thead class="text-[8px] font-black uppercase" style="background:var(--bg-panel-soft); color:var(--text-dim);">
                         <tr>
                             <th class="px-6 py-3">ID Asset / PIC</th>
                             <th class="px-6 py-3 text-right">Durasi Pinjam</th>
                         </tr>
                     </thead>
-                    <tbody id="dataTableBody" class="divide-y divide-neutral-800">
+                    <tbody id="dataTableBody" class="divide-y" style="border-color:var(--border-soft);">
                     </tbody>
                 </table>
             </div>
         </div>
 
         <footer class="mt-10 mb-6 px-4">
-            <div class="border-t border-neutral-900 pt-6 flex flex-col items-center space-y-5">
+            <div class="pt-6 flex flex-col items-center space-y-5" style="border-top:1px solid var(--border-soft);">
                 <div class="flex items-center space-x-3">
-                    <a href="https://wa.me/62895340174853" target="_blank" class="flex items-center space-x-2 bg-neutral-900/40 border border-neutral-800 px-4 py-2 rounded-xl">
+                    <a href="https://wa.me/62895340174853" target="_blank" class="flex items-center space-x-2 px-4 py-2 rounded-xl" style="background:rgba(255,255,255,0.02); border:1px solid var(--border-soft);">
                         <div class="bg-green-600 p-1 rounded-md">
                             <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                         </div>
-                        <span class="text-[9px] font-bold text-neutral-400 uppercase">Contact Us</span>
+                        <span class="text-[9px] font-bold uppercase" style="color:var(--text-dim);">Contact Us</span>
                     </a>
-                    <a href="https://i.pinimg.com/736x/98/b2/1c/98b21cbf6cac4bb27863b2b34fa80eb8.jpg" target="_blank" class="p-2 bg-neutral-900/40 border border-neutral-800 rounded-xl">
+                    <a href="https://i.pinimg.com/736x/98/b2/1c/98b21cbf6cac4bb27863b2b34fa80eb8.jpg" target="_blank" class="p-2 rounded-xl" style="background:rgba(255,255,255,0.02); border:1px solid var(--border-soft);">
                         <div class="bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 p-1 rounded-md">
                             <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                         </div>
@@ -168,7 +369,7 @@
                 </div>
                 <div class="text-center">
                     <p class="text-[8px] font-black gold-solid uppercase tracking-[0.3em]">Powered By Muly@.ID</p>
-                    <p class="text-[6px] font-bold text-neutral-700 uppercase tracking-[0.1em] mt-1 italic">&copy; 2026 Logistics Ops System</p>
+                    <p class="text-[6px] font-bold uppercase tracking-[0.1em] mt-1 italic" style="color:var(--text-dim);opacity:.6;">&copy; 2026 Logistics Ops System</p>
                 </div>
             </div>
         </footer>
@@ -179,25 +380,35 @@
         let currentMode = "PINJAM";
         let html5QrCode = null;
 
-        // --- FUNGSI PENCARIAN CERDAS (MULTIPLE ROW & ID EXTRACTION) ---
+        // ===== THEME SWITCHER =====
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            ['green','violet','amber'].forEach(t => {
+                document.getElementById('btn-' + t).classList.toggle('active', t === theme);
+            });
+            localStorage.setItem('ct_theme', theme);
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('ct_theme') || 'green';
+        setTheme(savedTheme);
+
+        // ===== SMART SEARCH =====
         function filterTable() {
             const input = document.getElementById("searchInput");
             const rawValue = input.value.trim();
             const alertBox = document.getElementById("notFoundAlert");
             const alertText = document.getElementById("notFoundText");
-            
+
             if (!rawValue) {
                 resetTable();
                 alertBox.classList.add('hidden');
                 return;
             }
 
-            // Split berdasarkan baris baru atau koma
             let lines = rawValue.split(/\n|,/);
-            
-            // Ambil ID-nya saja (biasanya angka di depan sebelum spasi/tab)
             let searchKeys = lines.map(line => {
-                let clean = line.trim().split(/\s+/)[0]; // Ambil elemen pertama
+                let clean = line.trim().split(/\s+/)[0];
                 return clean.toUpperCase();
             }).filter(k => k !== "");
 
@@ -209,7 +420,6 @@
                 if (td) {
                     const cellContent = td.textContent || td.innerText;
                     const cellUpper = cellContent.toUpperCase();
-                    
                     let isMatch = false;
                     searchKeys.forEach(key => {
                         if (cellUpper.indexOf(key) > -1) {
@@ -221,7 +431,6 @@
                 }
             }
 
-            // Validasi: Siapa yang dicari tapi tidak ada di tabel (belum kembali)
             const missing = searchKeys.filter(key => !foundKeys.has(key));
             if (missing.length > 0) {
                 alertBox.classList.remove('hidden');
@@ -236,15 +445,15 @@
             for (let i = 1; i < tr.length; i++) tr[i].style.display = "";
         }
 
-        // --- SCANNER ENGINE (SUPPORT HP JADUL) ---
+        // ===== SCANNER =====
         async function startCamera() {
             const container = document.getElementById('cameraContainer');
             container.classList.remove('hidden');
             if (html5QrCode) { try { await html5QrCode.clear(); } catch(e) {} }
             html5QrCode = new Html5Qrcode("reader");
-            
-            const config = { 
-                fps: 20, 
+
+            const config = {
+                fps: 20,
                 qrbox: { width: 250, height: 250 },
                 aspectRatio: 1.0,
                 experimentalFeatures: { useBarCodeDetectorIfSupported: true }
@@ -261,28 +470,28 @@
 
         function stopCamera() {
             if (html5QrCode) {
-                html5QrCode.stop().then(() => { 
-                    document.getElementById('cameraContainer').classList.add('hidden'); 
+                html5QrCode.stop().then(() => {
+                    document.getElementById('cameraContainer').classList.add('hidden');
                 }).catch(() => {
                     document.getElementById('cameraContainer').classList.add('hidden');
                 });
             }
         }
 
-        // --- DATA SUBMISSION ---
+        // ===== SUBMIT =====
         async function submitData() {
             const assetId = document.getElementById('assetIdInput').value;
             const btn = document.getElementById('submitBtn');
             if (!assetId) return alert("Scan QR Terlebih Dahulu!");
-            
+
             btn.disabled = true;
             btn.innerText = "SINKRONISASI...";
-            
+
             try {
-                await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    mode: 'no-cors', 
-                    body: JSON.stringify({ assetId: assetId, statusAksi: currentMode }) 
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ assetId: assetId, statusAksi: currentMode })
                 });
                 document.getElementById('assetIdInput').value = "";
                 setTimeout(syncData, 1500);
@@ -290,7 +499,33 @@
             finally { btn.disabled = false; btn.innerText = "SIMPAN KE CLOUD DATABASE"; }
         }
 
-        // --- FETCH & SORT DATA ---
+        // ===== PARSE WAKTU =====
+        function parseWaktu(item) {
+            if (item.waktuIso) return new Date(item.waktuIso);
+            const str = item.waktu;
+            const [datePart, timePart] = str.split(' ');
+            const [dd, mm] = datePart.split('/').map(Number);
+            const [HH, MM] = timePart.split(':').map(Number);
+            const now = new Date();
+            let year = now.getFullYear();
+            let d = new Date(year, mm - 1, dd, HH, MM);
+            if (d.getTime() - now.getTime() > 24 * 60 * 60 * 1000) {
+                d = new Date(year - 1, mm - 1, dd, HH, MM);
+            }
+            return d;
+        }
+
+        function formatDurasi(ms) {
+            const totalMinutes = Math.floor(ms / 60000);
+            const days = Math.floor(totalMinutes / 1440);
+            const hours = Math.floor((totalMinutes % 1440) / 60);
+            const minutes = totalMinutes % 60;
+            if (days > 0) return `${days}h ${hours}j`;
+            if (hours > 0) return `${hours}j ${minutes}m`;
+            return `${minutes}m`;
+        }
+
+        // ===== FETCH DATA =====
         async function syncData() {
             const tbody = document.getElementById('dataTableBody');
             try {
@@ -299,46 +534,57 @@
                 document.getElementById('outBadge').innerText = `${res.stats.out} UNIT OUT`;
 
                 if (!res.listDipinjam || res.listDipinjam.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="2" class="px-6 py-12 text-center text-neutral-600 text-[9px] font-black uppercase tracking-widest italic">Inventory Safe</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="2" class="px-6 py-12 text-center text-[9px] font-black uppercase tracking-widest italic" style="color:var(--text-dim);">Inventory Safe</td></tr>`;
                     return;
                 }
 
-                // Sort Waktu Terlama (Older First)
-                const sorted = res.listDipinjam.sort((a, b) => {
-                    const p = (d) => new Date(d.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
-                    return p(a.waktu) - p(b.waktu);
-                });
+                const now = new Date();
+                const sorted = res.listDipinjam
+                    .map(item => ({ ...item, parsedDate: parseWaktu(item) }))
+                    .sort((a, b) => a.parsedDate - b.parsedDate);
 
-                tbody.innerHTML = sorted.map(item => `
-                    <tr class="hover:bg-neutral-900 transition border-neutral-800">
+                tbody.innerHTML = sorted.map(item => {
+                    const diffMs = now - item.parsedDate;
+                    const diffHours = diffMs / 3600000;
+                    let rowClass = 'row-fresh';
+                    if (diffHours >= 24) rowClass = 'row-stale';
+                    else if (diffHours >= 8) rowClass = 'row-warn';
+
+                    return `
+                    <tr class="hover:bg-white/5 transition ${rowClass}">
                         <td class="px-6 py-4">
                             <div class="flex flex-col">
                                 <span class="text-[11px] font-black text-white tracking-tight">${item.id}</span>
-                                <span class="text-[8px] font-bold text-neutral-500 uppercase">${item.user || 'PIC'}</span>
+                                <span class="text-[8px] font-bold uppercase" style="color:var(--text-dim);">${item.user || 'PIC'}</span>
                             </div>
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex flex-col">
-                                <span class="text-[10px] font-black text-[#d4af37]">${item.waktu.split(' ')[1]}</span>
-                                <span class="text-[8px] font-bold text-neutral-600">${item.waktu.split(' ')[0]}</span>
+                                <span class="text-[10px] font-black" style="color:var(--accent-gold);">${formatDurasi(diffMs)}</span>
+                                <span class="text-[8px] font-bold" style="color:var(--text-dim);">${item.waktu}</span>
                             </div>
                         </td>
                     </tr>
-                `).join('');
+                `;
+                }).join('');
                 filterTable();
             } catch (err) {}
         }
 
+        // ===== MODE PINJAM / KEMBALI =====
         function setMode(mode) {
             currentMode = mode;
             const btnP = document.getElementById('modePinjam');
             const btnK = document.getElementById('modeKembali');
+
             if (mode === 'PINJAM') {
-                btnP.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-active uppercase";
-                btnK.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase";
+                btnP.className = "flex-1 py-3.5 text-[10px] font-black rounded-xl transition-all tab-pinjam-active uppercase tracking-widest";
+                btnK.className = "flex-1 py-3.5 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase tracking-widest";
+                btnK.removeAttribute('style');
             } else {
-                btnK.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all bg-green-600 text-white uppercase shadow-lg shadow-green-900/20";
-                btnP.className = "flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase";
+                btnK.className = "flex-1 py-3.5 text-[10px] font-black rounded-xl transition-all tab-kembali-active uppercase tracking-widest";
+                btnP.className = "flex-1 py-3.5 text-[10px] font-black rounded-xl transition-all tab-inactive uppercase tracking-widest";
+                btnP.removeAttribute('style');
             }
         }
 
